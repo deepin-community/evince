@@ -18,15 +18,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#pragma once
+
 #if !defined (__EV_EVINCE_DOCUMENT_H_INSIDE__) && !defined (EVINCE_COMPILATION)
 #error "Only <evince-document.h> can be included directly."
 #endif
 
-#ifndef EV_FORM_FIELD_H
-#define EV_FORM_FIELD_H
-
 #include <glib-object.h>
 
+#include "ev-macros.h"
 #include "ev-document.h"
 #include "ev-link.h"
 
@@ -37,7 +37,7 @@ G_BEGIN_DECLS
 #define EV_FORM_FIELD_CLASS(klass)                (G_TYPE_CHECK_CLASS_CAST((klass), EV_TYPE_FORM_FIELD, EvFormFieldClass))
 #define EV_IS_FORM_FIELD(object)                  (G_TYPE_CHECK_INSTANCE_TYPE((object), EV_TYPE_FORM_FIELD))
 #define EV_IS_FORM_FIELD_CLASS(klass)             (G_TYPE_CHECK_CLASS_TYPE((klass), EV_TYPE_FORM_FIELD))
-#define EV_FORM_FIELD_GET_CLASS(object)           (G_TYPE_INSTANCE_GET_CLASS((object), EV_TYPE_FORM_FIELD, EvFormFieldClass)) 
+#define EV_FORM_FIELD_GET_CLASS(object)           (G_TYPE_INSTANCE_GET_CLASS((object), EV_TYPE_FORM_FIELD, EvFormFieldClass))
 
 #define EV_TYPE_FORM_FIELD_TEXT                   (ev_form_field_text_get_type())
 #define EV_FORM_FIELD_TEXT(object)                (G_TYPE_CHECK_INSTANCE_CAST((object), EV_TYPE_FORM_FIELD_TEXT, EvFormFieldText))
@@ -119,13 +119,13 @@ struct _EvFormFieldClass
 {
 	GObjectClass parent_class;
 };
-	
+
 struct _EvFormFieldText
 {
 	EvFormField parent;
-	
+
 	EvFormFieldTextType type;
-	
+
 	gboolean do_spell_check : 1;
 	gboolean do_scroll : 1;
 	gboolean comb : 1;
@@ -144,7 +144,7 @@ struct _EvFormFieldTextClass
 struct _EvFormFieldButton
 {
 	EvFormField parent;
-	
+
 	EvFormFieldButtonType type;
 
 	gboolean state;
@@ -160,7 +160,7 @@ struct _EvFormFieldChoice
 	EvFormField parent;
 
 	EvFormFieldChoiceType type;
-	
+
 	gboolean multi_select : 1;
 	gboolean is_editable : 1;
 	gboolean do_spell_check : 1;
@@ -178,7 +178,7 @@ struct _EvFormFieldChoiceClass
 struct _EvFormFieldSignature
 {
 	EvFormField parent;
-	
+
 	/* TODO */
 };
 
@@ -188,29 +188,35 @@ struct _EvFormFieldSignatureClass
 };
 
 /* EvFormField base class */
+EV_PUBLIC
 GType        ev_form_field_get_type           (void) G_GNUC_CONST;
 
 /* EvFormFieldText */
+EV_PUBLIC
 GType        ev_form_field_text_get_type      (void) G_GNUC_CONST;
+EV_PUBLIC
 EvFormField *ev_form_field_text_new           (gint                  id,
 					       EvFormFieldTextType   type);
 
 /* EvFormFieldButton */
+EV_PUBLIC
 GType        ev_form_field_button_get_type    (void) G_GNUC_CONST;
+EV_PUBLIC
 EvFormField *ev_form_field_button_new         (gint                  id,
 					       EvFormFieldButtonType type);
 
 /* EvFormFieldChoice */
+EV_PUBLIC
 GType        ev_form_field_choice_get_type    (void) G_GNUC_CONST;
+EV_PUBLIC
 EvFormField *ev_form_field_choice_new         (gint                  id,
 					       EvFormFieldChoiceType type);
 
 /* EvFormFieldSignature */
+EV_PUBLIC
 GType        ev_form_field_signature_get_type (void) G_GNUC_CONST;
+EV_PUBLIC
 EvFormField *ev_form_field_signature_new      (gint                  id);
 
 
 G_END_DECLS
-
-#endif /* !EV_FORM_FIELD_H */
-

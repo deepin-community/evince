@@ -268,7 +268,7 @@ ev_find_sidebar_highlight_first_match_of_page (EvFindSidebar *sidebar,
                 return;
 
         for (i = 0; i < page; i++)
-                index += ev_job_find_get_n_results (priv->job, i);
+                index += ev_job_find_get_n_main_results (priv->job, i);
 
         if (priv->highlighted_result)
                 gtk_tree_path_free (priv->highlighted_result);
@@ -339,7 +339,9 @@ get_surrounding_text_markup (const gchar  *text,
                              gboolean      case_sensitive,
                              PangoLogAttr *log_attrs,
                              gint          log_attrs_length,
-                             gint          offset)
+                             gint          offset,
+                             gboolean      has_nextline,
+                             gboolean      hyphen_was_ignored)
 {
         gint   iter;
         gchar *prec = NULL;
@@ -356,7 +358,15 @@ get_surrounding_text_markup (const gchar  *text,
 
         iter = offset;
         offset += g_utf8_strlen (find_text, -1);
-        if (!case_sensitive)
+
+        if (has_nextline || g_utf8_offset_to_pointer (text, offset-1)[0] == '\n') {
+                if (has_nextline) {
+                        offset += 1; /* for newline */
+                        if (hyphen_was_ignored)
+                                offset += 1; /* for hyphen */
+                }
+                match = sanitized_substring (text, iter, offset);
+        } else if (!case_sensitive)
                 match = g_utf8_substring (text, iter, offset);
 
         iter = MIN (log_attrs_length, offset + 1);
@@ -409,7 +419,7 @@ get_page_text (EvDocument   *document,
 static gint
 get_match_offset (EvRectangle *areas,
                   guint        n_areas,
-                  EvRectangle *match,
+                  EvFindRectangle *match,
                   gint         offset)
 {
         gdouble x, y;
@@ -422,9 +432,13 @@ get_match_offset (EvRectangle *areas,
 
         do {
                 EvRectangle *area = areas + i;
+                gdouble area_y = (area->y1 + area->y2) / 2;
+                gdouble area_x = (area->x1 + area->x2) / 2;
 
                 if (x >= area->x1 && x < area->x2 &&
-                    y >= area->y1 && y <= area->y2) {
+                    y >= area->y1 && y <= area->y2 &&
+                    area_x >= match->x1 && area_x <= match->x2 &&
+                    area_y >= match->y1 && area_y <= match->y2) {
                         return i;
                 }
 
@@ -447,7 +461,7 @@ process_matches_idle (EvFindSidebar *sidebar)
         if (!ev_job_find_has_results (priv->job)) {
                 if (ev_job_is_finished (EV_JOB (priv->job)))
                         g_clear_object (&priv->job);
-                return FALSE;
+		return G_SOURCE_REMOVE;
         }
 
         document = EV_JOB (priv->job)->document;
@@ -489,20 +503,33 @@ process_matches_idle (EvFindSidebar *sidebar)
                 offset = 0;
 
                 for (l = matches, result = 0; l; l = g_list_next (l), result++) {
-                        EvRectangle *match = (EvRectangle *)l->data;
+                        EvFindRectangle *match = (EvFindRectangle *)l->data;
                         gchar       *markup;
                         GtkTreeIter  iter;
                         gint         new_offset;
 
+                        if (l->prev && ((EvFindRectangle *)l->prev->data)->next_line)
+                                continue; /* Skip as this is second part of a multi-line match */
+
                         new_offset = get_match_offset (areas, n_areas, match, offset);
                         if (new_offset == -1) {
-                                g_warning ("No offset found for match \"%s\" at page %d after processing %d results\n",
-                                           priv->job->text, current_page, result);
-                                /* It may happen that a vertical text match has no corresponding text area, skip
-                                 * that but keep iterating to show any other matches in page (issue #1545) */
-                                continue;
+                                /* It may happen that a text match has no corresponding text area available,
+                                 * (due to limitations/bugs of Poppler's TextPage->getSelectionWords() used by
+                                 * poppler-glib poppler_page_get_text_layout_for_area() function) so in that
+                                 * case we just show matched text because we cannot retrieve surrounding text.
+                                 * Issue #1943 and related #1545 */
+                                markup = g_strdup_printf ("<b>%s</b>", priv->job->text);
+                        } else {
+                                offset = new_offset;
+                                markup = get_surrounding_text_markup (page_text,
+                                                                      priv->job->text,
+                                                                      priv->job->case_sensitive,
+                                                                      text_log_attrs,
+                                                                      text_log_attrs_length,
+                                                                      offset,
+                                                                      match->next_line,
+                                                                      match->after_hyphen);
                         }
-                        offset = new_offset;
 
                         if (current_page >= priv->job->start_page) {
                                 gtk_list_store_append (GTK_LIST_STORE (model), &iter);
@@ -511,13 +538,6 @@ process_matches_idle (EvFindSidebar *sidebar)
                                                        priv->insert_position);
                                 priv->insert_position++;
                         }
-
-                        markup = get_surrounding_text_markup (page_text,
-                                                              priv->job->text,
-                                                              priv->job->case_sensitive,
-                                                              text_log_attrs,
-                                                              text_log_attrs_length,
-                                                              offset);
 
                         gtk_list_store_set (GTK_LIST_STORE (model), &iter,
                                             TEXT_COLUMN, markup,
@@ -537,7 +557,7 @@ process_matches_idle (EvFindSidebar *sidebar)
         if (ev_job_is_finished (EV_JOB (priv->job)) && priv->current_page == priv->job->start_page)
                 ev_find_sidebar_highlight_first_match_of_page (sidebar, priv->first_match_page);
 
-        return FALSE;
+        return G_SOURCE_REMOVE;
 }
 
 static void

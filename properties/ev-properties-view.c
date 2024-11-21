@@ -96,12 +96,9 @@ static void
 ev_properties_view_dispose (GObject *object)
 {
 	EvPropertiesView *properties = EV_PROPERTIES_VIEW (object);
-	
-	if (properties->uri) {
-		g_free (properties->uri);
-		properties->uri = NULL;
-	}
-	
+
+	g_clear_pointer (&properties->uri, g_free);
+
 	G_OBJECT_CLASS (ev_properties_view_parent_class)->dispose (object);
 }
 
@@ -122,34 +119,34 @@ make_valid_utf8 (const gchar *name)
   GString *string;
   const gchar *remainder, *invalid;
   gint remaining_bytes, valid_bytes;
-  
+
   string = NULL;
   remainder = name;
   remaining_bytes = strlen (name);
-  
-  while (remaining_bytes != 0) 
+
+  while (remaining_bytes != 0)
     {
-      if (g_utf8_validate (remainder, remaining_bytes, &invalid)) 
+      if (g_utf8_validate (remainder, remaining_bytes, &invalid))
 	break;
       valid_bytes = invalid - remainder;
-    
-      if (string == NULL) 
+
+      if (string == NULL)
 	string = g_string_sized_new (remaining_bytes);
 
       g_string_append_len (string, remainder, valid_bytes);
       g_string_append_c (string, '?');
-      
+
       remaining_bytes -= valid_bytes + 1;
       remainder = invalid + 1;
     }
-  
+
   if (string == NULL)
     return g_strdup (name);
-  
+
   g_string_append (string, remainder);
 
   g_assert (g_utf8_validate (string->str, -1, NULL));
-  
+
   return g_string_free (string, FALSE);
 }
 
@@ -271,7 +268,7 @@ get_default_user_units (void)
 
 #ifdef HAVE__NL_MEASUREMENT_MEASUREMENT
 	gchar *imperial = NULL;
-	
+
 	imperial = nl_langinfo (_NL_MEASUREMENT_MEASUREMENT);
 	if (imperial && imperial[0] == 2)
 		return GTK_UNIT_INCH;  /* imperial */
@@ -283,9 +280,9 @@ get_default_user_units (void)
 		return GTK_UNIT_MM;
 	if (strcmp (e, "default:inch") == 0)
 		return GTK_UNIT_INCH;
-	
+
 	g_warning ("Whoever translated default:mm did so wrongly.\n");
-				
+
 	return GTK_UNIT_MM;
 }
 
@@ -321,7 +318,7 @@ ev_regular_paper_size (const EvDocumentInfo *info)
 	}
 
 	paper_sizes = gtk_paper_size_get_paper_sizes (FALSE);
-	
+
 	for (l = paper_sizes; l && l->data; l = g_list_next (l)) {
 		GtkPaperSize *size = (GtkPaperSize *) l->data;
 		gdouble paper_width;
@@ -352,14 +349,13 @@ ev_regular_paper_size (const EvDocumentInfo *info)
 		}
 	}
 
-	g_list_foreach (paper_sizes, (GFunc) gtk_paper_size_free, NULL);
-	g_list_free (paper_sizes);
+	g_list_free_full (paper_sizes, (GDestroyNotify)gtk_paper_size_free);
 
 	if (str != NULL) {
 		g_free (exact_size);
 		return str;
 	}
-	
+
 	return exact_size;
 }
 
@@ -369,6 +365,7 @@ ev_properties_view_set_info (EvPropertiesView *properties, const EvDocumentInfo 
 	GtkWidget *grid;
 	gchar     *text;
 	gint       row = 0;
+        GDateTime *datetime;
 
 	grid = properties->grid;
 
@@ -391,24 +388,23 @@ ev_properties_view_set_info (EvPropertiesView *properties, const EvDocumentInfo 
 	if (info->fields_mask & EV_DOCUMENT_INFO_CREATOR) {
 		set_property (properties, GTK_GRID (grid), CREATOR_PROPERTY, info->creator, &row);
 	}
-	if (info->fields_mask & EV_DOCUMENT_INFO_CREATION_DATE) {
-		if (info->creation_date == -1) {
-			set_property (properties, GTK_GRID (grid), CREATION_DATE_PROPERTY, NULL, &row);
-		} else {
-			text = ev_document_misc_format_date (info->creation_date);
-			set_property (properties, GTK_GRID (grid), CREATION_DATE_PROPERTY, text, &row);
-			g_free (text);
-		}
-	}
-	if (info->fields_mask & EV_DOCUMENT_INFO_MOD_DATE) {
-		if (info->modified_date == -1) {
-			set_property (properties, GTK_GRID (grid), MOD_DATE_PROPERTY, NULL, &row);
-		} else {
-			text = ev_document_misc_format_date (info->modified_date);
-			set_property (properties, GTK_GRID (grid), MOD_DATE_PROPERTY, text, &row);
-			g_free (text);
-		}
-	}
+
+        datetime = ev_document_info_get_created_datetime (info);
+        if (datetime != NULL) {
+                text = ev_document_misc_format_datetime (datetime);
+                set_property (properties, GTK_GRID (grid), CREATION_DATE_PROPERTY, text, &row);
+                g_free (text);
+        } else {
+                set_property (properties, GTK_GRID (grid), CREATION_DATE_PROPERTY, NULL, &row);
+        }
+        datetime = ev_document_info_get_modified_datetime (info);
+        if (datetime != NULL) {
+                text = ev_document_misc_format_datetime (datetime);
+                set_property (properties, GTK_GRID (grid), MOD_DATE_PROPERTY, text, &row);
+                g_free (text);
+        } else {
+                set_property (properties, GTK_GRID (grid), MOD_DATE_PROPERTY, NULL, &row);
+        }
 	if (info->fields_mask & EV_DOCUMENT_INFO_FORMAT) {
 		set_property (properties, GTK_GRID (grid), FORMAT_PROPERTY, info->format, &row);
 	}
@@ -451,9 +447,12 @@ ev_properties_view_init (EvPropertiesView *properties)
 	properties->grid = gtk_grid_new ();
 	gtk_grid_set_column_spacing (GTK_GRID (properties->grid), 12);
 	gtk_grid_set_row_spacing (GTK_GRID (properties->grid), 6);
-	gtk_container_set_border_width (GTK_CONTAINER (properties->grid), 12);
 	gtk_box_pack_start (GTK_BOX (properties), properties->grid, TRUE, TRUE, 0);
 	gtk_widget_show (properties->grid);
+	gtk_widget_set_margin_bottom (properties->grid, 12);
+	gtk_widget_set_margin_top (properties->grid, 12);
+	gtk_widget_set_margin_start (properties->grid, 12);
+	gtk_widget_set_margin_end (properties->grid, 12);
 }
 
 void

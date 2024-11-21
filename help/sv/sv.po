@@ -1,8 +1,8 @@
 # Swedish messages for evince help.
-# Copyright © 2006-2021 Free Software Foundation, Inc.
+# Copyright © 2006-2024 Free Software Foundation, Inc.
 # Daniel Nylander <po@danielnylander.se>, 2006, 2008, 2009.
 # Sebastian Rasmussen <sebras@gmail.com>, 2015, 2016, 2017.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2017, 2018, 2019, 2020, 2021.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024.
 #
 # "PostScript" bör enligt Datatermgruppen skrivas "Postscript" på svenska.
 # http://www.nada.kth.se/dataterm/fos-lista.html#f19
@@ -10,15 +10,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: evince doc\n"
-"POT-Creation-Date: 2021-07-29 17:03+0000\n"
-"PO-Revision-Date: 2021-07-31 22:11+0200\n"
+"POT-Creation-Date: 2024-03-14 12:10+0000\n"
+"PO-Revision-Date: 2024-03-14 13:24+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #. Put one translator per line, in the form NAME <EMAIL>, YEAR1, YEAR2
 msgctxt "_"
@@ -93,10 +93,11 @@ msgstr "Beamer är en LaTeX-klass för att skapa bilder för presentationer."
 #: C/synctex-beamer.page:23
 msgid ""
 "You can perform forward and backward search in a <em>Beamer-LaTeX</em> "
-"presentation in a similar fashion to <link xref=\"synctex-search"
-"\">searching</link> through other TeX files compiled with SyncTeX. However "
-"the search brings you to the corresponding frame (slide), not necessarily "
-"the associated line of text. This difference is outlined in detail below."
+"presentation in a similar fashion to <link xref=\"synctex-"
+"search\">searching</link> through other TeX files compiled with SyncTeX. "
+"However the search brings you to the corresponding frame (slide), not "
+"necessarily the associated line of text. This difference is outlined in "
+"detail below."
 msgstr ""
 "Du kan söka bakåt och framåt i en <em>Beamer-LaTeX</em>-presentation på "
 "samma sätt som du <link xref=\"synctex-search\">söker</link> genom andra TeX-"
@@ -421,8 +422,8 @@ msgstr "Portable Document Format (.pdf)"
 #. (itstool) path: page/p
 #: C/convertSVG.page:32
 msgid ""
-"This works by opening the file in <app>Document Viewer</app> and \"printing"
-"\" the document as an SVG file."
+"This works by opening the file in <app>Document Viewer</app> and "
+"\"printing\" the document as an SVG file."
 msgstr ""
 "Detta fungerar genom att öppna filen i <app>Dokumentvisare</app> och ”skriva "
 "ut” dokumentet som en SVG-fil."
@@ -486,8 +487,8 @@ msgstr "Tagged Image File Format (.tiff, .tif)"
 #. (itstool) path: page/p
 #: C/convertPostScript.page:36
 msgid ""
-"This works by opening the file in <app>Document Viewer</app> and \"printing"
-"\" the document as a PostScript file."
+"This works by opening the file in <app>Document Viewer</app> and "
+"\"printing\" the document as a PostScript file."
 msgstr ""
 "Detta fungerar genom att öppna filen i <app>Dokumentvisare</app> och ”skriva "
 "ut” dokumentet som en Postscript-fil."
@@ -782,23 +783,27 @@ msgstr ""
 #: C/documentation.page:23
 msgid ""
 "To contribute to the Documentation Project, feel free to get in touch with "
-"us using <link href=\"https://cbe003.chat.mibbit.com/?url=irc%3A%2F%2Firc."
-"gnome.org%2Fdocs\">irc</link>, or via our <link href=\"http://mail.gnome.org/"
-"mailman/listinfo/gnome-doc-list\">mailing list</link>."
+"us in <link href=\"https://matrix.to/#/#docs:gnome.org\">#docs:gnome.org</"
+"link> on <link xref=\"help:gnome-help/help-matrix\">Matrix</link> or <link "
+"href=\"https://web.libera.chat/#gnome-docs\">#gnome-docs</link> on irc."
+"libera.chat, or via <link href=\"https://discourse.gnome.org/tag/"
+"documentation\">GNOME Discourse</link>."
 msgstr ""
-"För att bidra till Dokumentationsprojektet, tag kontakt med oss via <link "
-"href=\"https://cbe003.chat.mibbit.com/?url=irc%3A%2F%2Firc.gnome.org%2Fdocs"
-"\">irc</link> eller via vår <link href=\"http://mail.gnome.org/mailman/"
-"listinfo/gnome-doc-list\">sändlista</link>."
+"För att bidra till dokumentationsprojektet, tag kontakt med oss via <link "
+"href=\"https://matrix.to/#/#docs:gnome.org\">#docs:gnome.org</link> på <link "
+"xref=\"help:gnome-help/help-matrix\">Matrix</link> eller <link "
+"href=\"https://web.libera.chat/#gnome-docs\">#gnome-docs</link> på irc."
+"libera.chat, eller via <link href=\"https://discourse.gnome.org/tag/"
+"documentation\">GNOME Discourse</link>."
 
 #. (itstool) path: page/p
-#: C/documentation.page:25
+#: C/documentation.page:30
 msgid ""
-"Our <link href=\"https://live.gnome.org/DocumentationProject/Contributing"
-"\">wiki</link> page contains useful information."
+"Our <link href=\"https://wiki.gnome.org/DocumentationProject/"
+"Contributing\">wiki</link> page contains useful information."
 msgstr ""
-"Vår <link href=\"https://live.gnome.org/DocumentationProject/Contributing"
-"\">wiki</link>-sida innehåller användbar information."
+"Vår <link href=\"https://wiki.gnome.org/DocumentationProject/"
+"Contributing\">wiki</link>-sida innehåller användbar information."
 
 #. (itstool) path: info/desc
 #: C/synctex-editors.page:7
@@ -824,8 +829,8 @@ msgid ""
 "viewer</app> to <app>gedit</app>) are both supported."
 msgstr ""
 "Både <link xref=\"synctex-search#forward-search\">framåtlänkning</link> "
-"(från <app>gedit</app> till <app>Dokumentvisare</app>) och <link xref="
-"\"synctex-search#backward-search\">bakåtlänkning</link> (från "
+"(från <app>gedit</app> till <app>Dokumentvisare</app>) och <link "
+"xref=\"synctex-search#backward-search\">bakåtlänkning</link> (från "
 "<app>Dokumentvisare</app> till <app>gedit</app>) stöds."
 
 #. (itstool) path: section/title
@@ -1037,11 +1042,13 @@ msgstr "För att kontrollera om din skrivare kan skriva ut korrekt:"
 #. (itstool) path: item/p
 #: C/noprint.page:44
 msgid ""
-"Open the <gui href=\"help:gnome-help/shell-introduction#activities"
-"\">Activities</gui> overview and start typing <gui>Settings</gui>."
+"Open the <gui href=\"help:gnome-help/shell-"
+"introduction#activities\">Activities</gui> overview and start typing "
+"<gui>Settings</gui>."
 msgstr ""
-"Öppna översiktsvyn <gui href=\"help:gnome-help/shell-introduction#activities"
-"\">Aktiviteter</gui> och börja skriva <gui>Inställningar</gui>."
+"Öppna översiktsvyn <gui href=\"help:gnome-help/shell-"
+"introduction#activities\">Aktiviteter</gui> och börja skriva "
+"<gui>Inställningar</gui>."
 
 #. (itstool) path: item/p
 #: C/noprint.page:48
@@ -1080,9 +1087,9 @@ msgid ""
 "link>. You may also need to see your printer's manual to see what else you "
 "can do."
 msgstr ""
-"Om detta misslyckas, se vidare i <link href=\"help:gnome-help/printing"
-"\">Skrivarhjälp</link>. Du kanske också måste konsultera din skrivares "
-"handbok för att se om det finns något du kan göra."
+"Om detta misslyckas, se vidare i <link href=\"help:gnome-help/"
+"printing\">Skrivarhjälp</link>. Du kanske också måste konsultera din "
+"skrivares handbok för att se om det finns något du kan göra."
 
 #. (itstool) path: section/title
 #: C/noprint.page:74
@@ -1123,11 +1130,13 @@ msgstr ""
 #. (itstool) path: item/p
 #: C/noprint.page:93
 msgid ""
-"Open the <gui href=\"help:gnome-help/shell-introduction#activities"
-"\">Activities</gui> overview and start typing <gui>dconf Editor</gui>."
+"Open the <gui href=\"help:gnome-help/shell-"
+"introduction#activities\">Activities</gui> overview and start typing "
+"<gui>dconf Editor</gui>."
 msgstr ""
-"Öppna översiktsvyn <gui href=\"help:gnome-help/shell-introduction#activities"
-"\">Aktiviteter</gui> och börja skriva <gui>dconf-redigerare</gui>."
+"Öppna översiktsvyn <gui href=\"help:gnome-help/shell-"
+"introduction#activities\">Aktiviteter</gui> och börja skriva <gui>dconf-"
+"redigerare</gui>."
 
 #. (itstool) path: item/p
 #: C/noprint.page:97
@@ -1341,7 +1350,7 @@ msgstr ""
 #. (itstool) path: item/p
 #: C/synctex-support.page:31
 msgid "A LaTeX engine with SyncTeX support, such as <app>pdflatex</app>."
-msgstr "En LaTeX-motor med SyncTeX-stöd, så som <app>pdflatex</app>."
+msgstr "En LaTeX-motor med SyncTeX-stöd, som <app>pdflatex</app>."
 
 #. (itstool) path: item/p
 #: C/synctex-support.page:36
@@ -1349,8 +1358,8 @@ msgid ""
 "A text editor with SyncTeX support, such as <app>gedit</app> with gedit-"
 "plugins installed."
 msgstr ""
-"En textredigerare med SyncTeX-stöd, så som <app>gedit</app> med gedit-"
-"plugins installerat."
+"En textredigerare med SyncTeX-stöd, som <app>gedit</app> med gedit-plugins "
+"installerat."
 
 #. (itstool) path: page/p
 #: C/synctex-support.page:42
@@ -1360,14 +1369,19 @@ msgstr "I <app>gedit</app>, aktivera SyncTeX-insticksmodulen:"
 #. (itstool) path: item/p
 #: C/synctex-support.page:47
 msgid ""
-"Click <guiseq><gui>Edit</gui><gui>Preferences</gui><gui>Plugins</gui></"
-"guiseq> tab."
+"Press the menu button in the top-right corner of the window and select <gui "
+"style=\"menuitem\">Preferences</gui>."
 msgstr ""
-"Klicka på <guiseq><gui>Redigera</gui><gui>Inställningar</"
-"gui><gui>Insticksmoduler</gui></guiseq>-fliken."
+"Tryck på menyknappen i fönstrets övre högra hörn och välj <gui "
+"style=\"menuitem\">Inställningar</gui>."
 
 #. (itstool) path: item/p
-#: C/synctex-support.page:52
+#: C/synctex-support.page:50
+msgid "Select the <gui>Plugins</gui> tab."
+msgstr "Välj fliken <gui>Insticksmoduler</gui>."
+
+#. (itstool) path: item/p
+#: C/synctex-support.page:55
 msgid "Check <gui>SyncTeX</gui>."
 msgstr "Kontrollera <gui>SyncTeX</gui>."
 
@@ -1506,47 +1520,50 @@ msgstr ""
 #. (itstool) path: page/p
 #: C/translate.page:27
 msgid ""
-"There are <link href=\"http://l10n.gnome.org/module/evince/\">many "
+"There are <link href=\"https://l10n.gnome.org/module/evince/\">many "
 "languages</link> for which translations are still needed."
 msgstr ""
-"Det finns <link href=\"http://l10n.gnome.org/module/evince/\">många språk</"
+"Det finns <link href=\"https://l10n.gnome.org/module/evince/\">många språk</"
 "link> för vilka översättningar fortfarande behövs."
 
 #. (itstool) path: page/p
 #: C/translate.page:30
 msgid ""
-"To start translating you will need to <link href=\"http://l10n.gnome.org"
-"\">create an account</link> and join the <link href=\"http://l10n.gnome.org/"
-"teams/\">translation team</link> for your language. This will give you the "
-"ability to upload new translations."
+"To start translating you will need to <link href=\"https://l10n.gnome."
+"org\">create an account</link> and join the <link href=\"https://l10n.gnome."
+"org/teams/\">translation team</link> for your language. This will give you "
+"the ability to upload new translations."
 msgstr ""
-"För att börja översätta kommer du att behöva <link href=\"http://l10n.gnome."
-"org\">skapa ett konto</link> och gå med i <link href=\"http://l10n.gnome.org/"
-"teams/\">översättningsgruppen</link> för ditt språk. Detta kommer att ge dig "
-"möjligheten att skicka upp nya översättningar."
+"För att börja översätta kommer du att behöva <link href=\"https://l10n.gnome."
+"org\">skapa ett konto</link> och gå med i <link href=\"https://l10n.gnome."
+"org/teams/\">översättningsgruppen</link> för ditt språk. Detta kommer att ge "
+"dig möjligheten att skicka upp nya översättningar."
 
 #. (itstool) path: page/p
 #: C/translate.page:34
 msgid ""
-"You can chat with GNOME translators using <link href=\"https://cbe003.chat."
-"mibbit.com/?url=irc%3A%2F%2Firc.gnome.org%2Fi18n\">irc</link>. People on the "
-"channel are located worldwide, so you may not get an immediate response as a "
-"result of timezone differences."
+"You can chat with GNOME translators in <link href=\"https://matrix.to/#/"
+"#i18n:gnome.org\">#i18n:gnome.org</link> on <link xref=\"help:gnome-help/"
+"help-matrix\">Matrix</link> or <link href=\"https://web.libera.chat/#gnome-"
+"i18n\">#gnome-i18n</link> on irc.libera.chat. People on the channel are "
+"located worldwide, so you may not get an immediate response as a result of "
+"timezone differences."
 msgstr ""
-"Du kan chatta med GNOME-översättare via <link href=\"https://cbe003.chat."
-"mibbit.com/?url=irc%3A%2F%2Firc.gnome.org%2Fi18n\">irc</link>. Folk i "
-"kanalen finns över hela världen, så du kanske inte får ett omedelbart svar "
-"på grund av skillnader i tidzon."
+"Du kan chatta med GNOME-översättare i <link href=\"https://matrix.to/#/#i18n:"
+"gnome.org\">#i18n:gnome.org</link> på <link xref=\"help:gnome-help/help-"
+"matrix\">Matrix</link> eller <link href=\"https://web.libera.chat/#gnome-"
+"i18n\">#gnome-i18n</link> på irc.libera.chat. Folk i kanalen finns över hela "
+"världen, så du kanske inte får ett omedelbart svar på grund av skillnader i "
+"tidszon."
 
 #. (itstool) path: page/p
-#: C/translate.page:37
+#: C/translate.page:41
 msgid ""
-"Alternatively, you can contact the Internationalization Team using their "
-"<link href=\"http://mail.gnome.org/mailman/listinfo/gnome-i18n\">mailing "
-"list</link>."
+"Alternatively, you can contact the Internationalization Team using <link "
+"href=\"https://discourse.gnome.org/tag/i18n\">GNOME Discourse</link>."
 msgstr ""
-"Alternativt kan du kontakta internationaliseringsgruppen via deras <link "
-"href=\"http://mail.gnome.org/mailman/listinfo/gnome-i18n\">sändlista</link>."
+"Alternativt kan du kontakta internationaliseringsgruppen genom <link "
+"href=\"https://discourse.gnome.org/tag/i18n\">GNOME Discourse</link>."
 
 #. (itstool) path: info/desc
 #: C/default-settings.page:7
@@ -1570,9 +1587,9 @@ msgid ""
 "and page view preferences, are applied. Any changes you make to these "
 "settings are saved for the document."
 msgstr ""
-"När ett dokument öppnas för första gången kommer standardinställningar så "
-"som zoom och visningsinställningar att appliceras. Ändringar du gör för "
-"dessa inställningar sparas för dokumentet."
+"När ett dokument öppnas för första gången kommer standardinställningar såsom "
+"zoom och visningsinställningar att appliceras. Ändringar du gör för dessa "
+"inställningar sparas för dokumentet."
 
 #. (itstool) path: page/p
 #: C/default-settings.page:26
@@ -1817,9 +1834,9 @@ msgid "The <app>document viewer</app> supports the following formats:"
 msgstr "<app>Dokumentvisare</app> stöder följande format:"
 
 #. (itstool) path: item/p
-#: C/formats.page:33 C/presentations.page:77
-msgid "Comic Book Archive (.cbr and .cbz)"
-msgstr "Serietidningsarkiv (.cbr och .cbz)"
+#: C/formats.page:33
+msgid "Comic Book Archive (.cb7, .cbr, .cbt, and .cbz)"
+msgstr "Serietidningsarkiv (.cb7, .cbr, .cbt och .cbz)"
 
 #. (itstool) path: item/p
 #: C/formats.page:34 C/printing.page:49 C/presentations.page:78
@@ -2050,15 +2067,19 @@ msgstr ""
 msgid ""
 "If you would like to <link href=\"https://wiki.gnome.org/Apps/Evince\">help "
 "develop</link> the <app>Document Viewer</app>, you can get in touch with the "
-"developers using <link href=\"https://cbe005.chat.mibbit.com/?url=irc%3A%2F"
-"%2Firc.gnome.org%2Fevince\">irc</link>, or via our <link href=\"https://mail."
-"gnome.org/mailman/listinfo/evince-list\">mailing list</link>."
+"developers at <link href=\"https://matrix.to/#/#evince:gnome.org\">#evince:"
+"gnome.org</link> on <link xref=\"help:gnome-help/help-matrix\">Matrix</link> "
+"or <link href=\"https://web.libera.chat/#gnome-evince\">#gnome-evince</link> "
+"on irc.libera.chat, or via <link href=\"https://discourse.gnome.org/tag/"
+"evince\">GNOME Discourse</link>."
 msgstr ""
 "Om du vill <link href=\"https://wiki.gnome.org/Apps/Evince\">hjälpa till att "
 "utveckla</link> <app>Dokumentvisare</app> kan du försöka komma i kontakt med "
-"utvecklarna via <link href=\"https://cbe005.chat.mibbit.com/?url=irc%3A%2F"
-"%2Firc.gnome.org%2Fevince\">irc</link> eller via vår <link href=\"https://"
-"mail.gnome.org/mailman/listinfo/evince-list\">sändlista</link>."
+"utvecklarna via <link href=\"https://matrix.to/#/#evince:gnome.org\">#evince:"
+"gnome.org</link> på <link xref=\"help:gnome-help/help-matrix\">Matrix</link> "
+"eller <link href=\"https://web.libera.chat/#gnome-evince\">#gnome-evince</"
+"link> på irc.libera.chat, eller via <link href=\"https://discourse.gnome.org/"
+"tag/evince\">GNOME Discourse</link>."
 
 #. (itstool) path: info/desc
 #: C/printing.page:9
@@ -2245,8 +2266,8 @@ msgstr "En knapp för att visa eller dölja sidopanelen."
 #: C/headerbar.page:31
 msgid ""
 "A text field to <link xref=\"movingaround#between-pages\">go to a certain "
-"page</link> or to <link xref=\"finding\">search</link> in the <link xref="
-"\"movingaround#navigating\">index</link>."
+"page</link> or to <link xref=\"finding\">search</link> in the <link "
+"xref=\"movingaround#navigating\">index</link>."
 msgstr ""
 "Ett textfält för att <link xref=\"movingaround#between-pages\">gå till en "
 "specifik sida</link> eller för att <link xref=\"finding\">söka</link> i "
@@ -2264,8 +2285,8 @@ msgid ""
 "A drop-down box to adjust the <link xref=\"movingaround#zoom\">zoom</link> "
 "level."
 msgstr ""
-"Ett rullgardinslista för att justera <link xref=\"movingaround#zoom"
-"\">zoomnivån</link>."
+"Ett rullgardinslista för att justera <link "
+"xref=\"movingaround#zoom\">zoomnivån</link>."
 
 #. (itstool) path: item/p
 #: C/headerbar.page:42
@@ -2294,11 +2315,11 @@ msgstr "Sidskalning för utskrift"
 #. (itstool) path: item/p
 #: C/print-pagescaling.page:30
 msgid ""
-"Open the menu at the top-right of the window, then select <gui style="
-"\"menuitem\">Print…</gui>."
+"Open the menu at the top-right of the window, then select <gui "
+"style=\"menuitem\">Print…</gui>."
 msgstr ""
-"Öppna menyn i övre högra hörnet på fönstret, välj sedan <gui style=\"menuitem"
-"\">Skriv ut…</gui>."
+"Öppna menyn i övre högra hörnet på fönstret, välj sedan <gui "
+"style=\"menuitem\">Skriv ut…</gui>."
 
 #. (itstool) path: item/p
 #: C/print-pagescaling.page:34
@@ -2689,17 +2710,17 @@ msgid ""
 "side pane</link>."
 msgstr ""
 "Visa en sida som har en kommentar. Om du inte är säker på vilka sidor som "
-"har kommentarer kan du hitta dem i <link xref=\"annotations-navigate"
-"\">sidopanelen för kommentarer</link>."
+"har kommentarer kan du hitta dem i <link xref=\"annotations-"
+"navigate\">sidopanelen för kommentarer</link>."
 
 #. (itstool) path: item/p
 #: C/annotations-delete.page:35
 msgid ""
-"Right-click on the annotation icon in the document, and click <gui style="
-"\"menuitem\">Remove Annotation</gui>."
+"Right-click on the annotation icon in the document, and click <gui "
+"style=\"menuitem\">Remove Annotation</gui>."
 msgstr ""
-"Högerklicka på kommentarsikonen i dokumentet och klicka på <gui style="
-"\"menuitem\">Ta bort kommentar</gui>."
+"Högerklicka på kommentarsikonen i dokumentet och klicka på <gui "
+"style=\"menuitem\">Ta bort kommentar</gui>."
 
 #. (itstool) path: item/p
 #: C/annotations-delete.page:39
@@ -2730,8 +2751,8 @@ msgid ""
 msgstr ""
 "<app>Dokumentvisare</app> underhålls av en frivillig gemenskap. Du är "
 "välkommen att delta. Om du märker av ett problem kan du skapa en "
-"<em>felrapport</em>. För att rapportera ett fel, gå till <link href="
-"\"https://gitlab.gnome.org/GNOME/evince/issues/\"/>."
+"<em>felrapport</em>. För att rapportera ett fel, gå till <link "
+"href=\"https://gitlab.gnome.org/GNOME/evince/issues/\"/>."
 
 #. (itstool) path: page/p
 #: C/bug-filing.page:23
@@ -2926,8 +2947,8 @@ msgid ""
 "Type a page number in <gui style=\"input\">Select Page</gui> on the <link "
 "xref=\"headerbar\">header bar</link> and press <key>Enter</key>."
 msgstr ""
-"Skriv in ett sidnummer i <gui style=\"input\">Välj sida</gui> i <link xref="
-"\"headerbar\">rubrikraden</link> och tryck <key>Retur</key>."
+"Skriv in ett sidnummer i <gui style=\"input\">Välj sida</gui> i <link "
+"xref=\"headerbar\">rubrikraden</link> och tryck <key>Retur</key>."
 
 #. (itstool) path: item/p
 #: C/movingaround.page:92
@@ -2961,8 +2982,8 @@ msgstr ""
 msgid ""
 "You can only move around one page at a time, by default. If you want to move "
 "between pages just by scrolling or dragging, press the menu button in the "
-"top-right corner of the window and select <gui style=\"menuitem"
-"\">Continuous</gui>."
+"top-right corner of the window and select <gui "
+"style=\"menuitem\">Continuous</gui>."
 msgstr ""
 "Du kan bara flytta runt på en sida åt gången som standard. Om du vill flytta "
 "mellan sidor enkom genom att rulla eller dra, tryck på menyknappen i "
@@ -2979,14 +3000,14 @@ msgstr "Navigera med en sidlista eller innehållsförteckning"
 #: C/movingaround.page:124 C/annotations.page:30 C/bookmarks.page:34
 msgid ""
 "When you open a file, you should have a side pane on the left side of the "
-"window. If you do not have a visible side pane, click the <gui style=\"button"
-"\">Side pane</gui> button in the top-left corner, or press the <key>F9</key> "
-"key on the keyboard."
+"window. If you do not have a visible side pane, click the <gui "
+"style=\"button\">Side pane</gui> button in the top-left corner, or press the "
+"<key>F9</key> key on the keyboard."
 msgstr ""
 "När du öppnar en fil bör du ha en sidopanel på den vänstra sidan av "
-"fönstret. Om du inte har en synlig sidopanel, välj knappen <gui style="
-"\"button\">Sidopanel</gui> i det övre vänstra hörnet eller tryck <key>F9</"
-"key> på tangentbordet."
+"fönstret. Om du inte har en synlig sidopanel, välj knappen <gui "
+"style=\"button\">Sidopanel</gui> i det övre vänstra hörnet eller tryck "
+"<key>F9</key> på tangentbordet."
 
 #. (itstool) path: section/p
 #: C/movingaround.page:128
@@ -3079,12 +3100,12 @@ msgstr ""
 #: C/movingaround.page:168
 msgid ""
 "If you want to see two pages at once, side by side, like in a book, press "
-"the menu button in the top-right corner of the window and select <gui style="
-"\"menuitem\">Dual</gui>."
+"the menu button in the top-right corner of the window and select <gui "
+"style=\"menuitem\">Dual</gui>."
 msgstr ""
 "Om du vill se två sidor åt gången, sida vid sida, som i en bok, tryck på "
-"menyknappen i fönstrets övre högra hörn och välj <gui style=\"menuitem"
-"\">Dubbel</gui>."
+"menyknappen i fönstrets övre högra hörn och välj <gui "
+"style=\"menuitem\">Dubbel</gui>."
 
 #. (itstool) path: note/p
 #: C/movingaround.page:171
@@ -3214,8 +3235,8 @@ msgid ""
 "Press the menu button in the top-right corner of the window and select <gui "
 "style=\"menuitem\">Present as Slideshow</gui> (or press <key>F5</key>)."
 msgstr ""
-"Tryck på menyknappen i fönstrets övre högra hörn och välj <gui style="
-"\"menuitem\">Presentera som bildspel</gui> (eller tryck <key>F5</key>)."
+"Tryck på menyknappen i fönstrets övre högra hörn och välj <gui "
+"style=\"menuitem\">Presentera som bildspel</gui> (eller tryck <key>F5</key>)."
 
 #. (itstool) path: item/p
 #: C/presentations.page:37
@@ -3290,6 +3311,11 @@ msgstr "Filformat för presentationer som stöds"
 #: C/presentations.page:73
 msgid "The following file formats can be used for presentations:"
 msgstr "Följande filformat kan användas för presentationer:"
+
+#. (itstool) path: item/p
+#: C/presentations.page:77
+msgid "Comic Book Archive (.cbr and .cbz)"
+msgstr "Serietidningsarkiv (.cbr och .cbz)"
 
 #. (itstool) path: item/p
 #: C/presentations.page:80
@@ -3386,8 +3412,8 @@ msgid ""
 msgstr ""
 "Standardegenskaperna för kommentarer (upphovsman, färg, stil och ikon) kan "
 "bara ändras för en specifik kommentar som tidigare uppgivits. Så om du vill "
-"ändra alla ikoner för dina kommentarer till att vara <gui>röda</gui> "
-"istället för <gui>gula</gui> måste du ändra standardvärdet från <gui>gult</"
+"ändra alla ikoner för dina kommentarer till att vara <gui>röda</gui> i "
+"stället för <gui>gula</gui> måste du ändra standardvärdet från <gui>gult</"
 "gui> till <gui>rött</gui> individuellt för varje kommentar. Det finns just "
 "nu inget sätt att spara olika standardinställningar för kommentarsegenskaper."
 
@@ -3611,8 +3637,8 @@ msgstr ""
 #. (itstool) path: item/p
 #: C/annotations.page:50
 msgid ""
-"You should now see <gui style=\"button\">Note text</gui> and <gui style="
-"\"button\">Highlight text</gui> buttons below the header bar."
+"You should now see <gui style=\"button\">Note text</gui> and <gui "
+"style=\"button\">Highlight text</gui> buttons below the header bar."
 msgstr ""
 "Du bör nu se knapparna <gui style=\"button\">Gör en notering på text</gui> "
 "och <gui style=\"button\">Färgmarkera text</gui> under rubrikraden."
@@ -3960,8 +3986,8 @@ msgstr "Du kan konvertera dokument från följande formattyper till PDF-format:"
 #. (itstool) path: page/p
 #: C/convertpdf.page:35
 msgid ""
-"This works by opening the file in <app>Document Viewer</app> and \"printing"
-"\" the document as a PDF file."
+"This works by opening the file in <app>Document Viewer</app> and "
+"\"printing\" the document as a PDF file."
 msgstr ""
 "Detta fungerar genom att öppna filen i <app>Dokumentvisare</app> och ”skriva "
 "ut” dokumentet som en PDF-fil."
@@ -4008,12 +4034,12 @@ msgstr "Invertera färgerna på en sida"
 #: C/invert-colors.page:32
 msgid ""
 "To swap black for white, white for black, and so on, press the menu button "
-"in the top-right corner of the window and select <gui style=\"menuitem"
-"\">Night Mode</gui>."
+"in the top-right corner of the window and select <gui "
+"style=\"menuitem\">Night Mode</gui>."
 msgstr ""
 "För att ersätta svart med vitt och vitt med svart o.s.v., klicka på "
-"menyknappen i fönstrets övre högra hörn och välj <gui style=\"menuitem"
-"\">Nattläge</gui>."
+"menyknappen i fönstrets övre högra hörn och välj <gui "
+"style=\"menuitem\">Nattläge</gui>."
 
 #. (itstool) path: note/p
 #: C/invert-colors.page:37
@@ -4067,9 +4093,9 @@ msgstr ""
 "Det kan finnas vissa delar av ett formulär som du måste fylla i för hand "
 "<em>efter</em> att du skrivit ut formuläret. Till exempel måste du kanske "
 "ringa in vissa saker eller signera dokumentet på ett eller flera ställen. Om "
-"du önskar att göra detta elektroniskt kanske du vill prova <link href="
-"\"http://www.g-loaded.eu/2008/05/03/how-to-annotate-pdf-files-in-linux-using-"
-"xournal/\">Xournal</link>."
+"du önskar att göra detta elektroniskt kanske du vill prova <link "
+"href=\"http://www.g-loaded.eu/2008/05/03/how-to-annotate-pdf-files-in-linux-"
+"using-xournal/\">Xournal</link>."
 
 #. (itstool) path: info/desc
 #: C/synctex-search.page:7

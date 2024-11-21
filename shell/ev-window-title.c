@@ -71,7 +71,7 @@ ev_window_title_sanitize_title (EvWindowTitle *window_title, char **title) {
 	backend = G_OBJECT_TYPE_NAME (window_title->document);
 
 	for (i = 0; i < G_N_ELEMENTS (bad_extensions); i++) {
-		if (g_ascii_strcasecmp (bad_extensions[i].backend, backend) == 0 && 
+		if (g_ascii_strcasecmp (bad_extensions[i].backend, backend) == 0 &&
 		    g_str_has_suffix (*title, bad_extensions[i].text)) {
 			char *new_title;
 
@@ -85,7 +85,7 @@ ev_window_title_sanitize_title (EvWindowTitle *window_title, char **title) {
 		    g_str_has_prefix (*title, bad_prefixes[i].text)) {
 			char *new_title;
 			int len = strlen(bad_prefixes[i].text);
-			
+
 			new_title = g_strdup_printf ("%s", (*title) + len);
 			g_free (*title);
 			*title = new_title;
@@ -97,12 +97,13 @@ static void
 ev_window_title_update (EvWindowTitle *window_title)
 {
 	GtkWindow *window = GTK_WINDOW (window_title->window);
-	HdyHeaderBar *toolbar = HDY_HEADER_BAR (ev_window_get_toolbar (EV_WINDOW (window)));
+	HdyHeaderBar *toolbar = ev_window_get_toolbar (EV_WINDOW (window));
 	char *title = NULL, *p;
 	char *subtitle = NULL, *title_header = NULL;
 	gboolean ltr;
 
         if (window_title->type == EV_WINDOW_TITLE_RECENT) {
+                hdy_header_bar_set_title (toolbar, g_get_application_name ());
                 hdy_header_bar_set_subtitle (toolbar, NULL);
                 gtk_window_set_title (window, _("Recent Documents"));
                 return;
@@ -111,16 +112,13 @@ ev_window_title_update (EvWindowTitle *window_title)
 	ltr = gtk_widget_get_direction (GTK_WIDGET (window)) == GTK_TEXT_DIR_LTR;
 
 	if (window_title->doc_title && window_title->filename) {
-                title = g_strdup (window_title->doc_title);
-                ev_window_title_sanitize_title (window_title, &title);
-
+		title_header = window_title->doc_title;
 		subtitle = window_title->filename;
 
-		title_header = title;
 		if (ltr)
-			title = g_strdup_printf ("%s — %s", subtitle, title);
+			title = g_strdup_printf ("%s — %s", subtitle, title_header);
 		else
-			title = g_strdup_printf ("%s — %s", title, subtitle);
+			title = g_strdup_printf ("%s — %s", title_header, subtitle);
 
                 for (p = title; *p; ++p) {
                         /* an '\n' byte is always ASCII, no need for UTF-8 special casing */
@@ -129,7 +127,7 @@ ev_window_title_update (EvWindowTitle *window_title)
                 }
 	} else if (window_title->filename) {
 		title = g_strdup (window_title->filename);
-	} else if (!title) {
+	} else {
 		title = g_strdup (_("Document Viewer"));
 	}
 
@@ -167,7 +165,6 @@ ev_window_title_update (EvWindowTitle *window_title)
 	}
 
 	g_free (title);
-	g_free (title_header);
 }
 
 EvWindowTitle *
@@ -227,7 +224,9 @@ ev_window_title_set_document (EvWindowTitle *window_title,
 			doc_title = g_strstrip (doc_title);
 
 			if (doc_title[0] != '\0' &&
-                            g_utf8_validate (doc_title, -1, NULL)) {
+			    g_utf8_validate (doc_title, -1, NULL)) {
+				ev_window_title_sanitize_title (window_title,
+								&doc_title);
 				window_title->doc_title = doc_title;
 			} else {
                                 g_free (doc_title);

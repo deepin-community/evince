@@ -163,7 +163,7 @@ ev_link_action_get_toggle_list (EvLinkAction *self)
  * ev_link_action_get_reset_fields:
  * @self: an #EvLinkAction
  *
- * Returns: (transfer none) (element-type gchar *): a list of fields to reset
+ * Returns: (transfer none) (element-type gchar*): a list of fields to reset
  */
 GList *
 ev_link_action_get_reset_fields (EvLinkAction *self)
@@ -302,48 +302,15 @@ ev_link_action_finalize (GObject *object)
 
 	g_clear_object (&priv->dest);
 
-	if (priv->uri) {
-		g_free (priv->uri);
-		priv->uri = NULL;
-	}
+	g_clear_pointer (&priv->uri, g_free);
+	g_clear_pointer (&priv->filename, g_free);
+	g_clear_pointer (&priv->params, g_free);
+	g_clear_pointer (&priv->name, g_free);
 
-	if (priv->filename) {
-		g_free (priv->filename);
-		priv->filename = NULL;
-	}
-
-	if (priv->params) {
-		g_free (priv->params);
-		priv->params = NULL;
-	}
-
-	if (priv->name) {
-		g_free (priv->name);
-		priv->name = NULL;
-	}
-
-	if (priv->show_list) {
-		g_list_foreach (priv->show_list, (GFunc)g_object_unref, NULL);
-		g_list_free (priv->show_list);
-		priv->show_list = NULL;
-	}
-
-	if (priv->hide_list) {
-		g_list_foreach (priv->hide_list, (GFunc)g_object_unref, NULL);
-		g_list_free (priv->hide_list);
-		priv->hide_list = NULL;
-	}
-
-	if (priv->toggle_list) {
-		g_list_foreach (priv->toggle_list, (GFunc)g_object_unref, NULL);
-		g_list_free (priv->toggle_list);
-		priv->toggle_list = NULL;
-	}
-
-	if (priv->reset_fields) {
-		g_list_free_full (priv->reset_fields, g_free);
-		priv->reset_fields = NULL;
-	}
+	g_list_free_full (g_steal_pointer (&priv->show_list), g_object_unref);
+	g_list_free_full (g_steal_pointer (&priv->hide_list), g_object_unref);
+	g_list_free_full (g_steal_pointer (&priv->toggle_list), g_object_unref);
+	g_list_free_full (g_steal_pointer (&priv->reset_fields), g_free);
 
 	G_OBJECT_CLASS (ev_link_action_parent_class)->finalize (object);
 }
@@ -542,6 +509,13 @@ ev_link_action_new_layers_state (GList *show_list,
 					     NULL));
 }
 
+/**
+ * ev_link_action_new_reset_form:
+ * @fields: (element-type gchar*): a list of fields to reset
+ * @exclude_fields: whether to exclude reset fields when resetting form
+ *
+ * Returns: (transfer full): a new #EvLinkAction
+ */
 EvLinkAction *
 ev_link_action_new_reset_form (GList    *reset_fields,
 			       gboolean  exclude_reset_fields)

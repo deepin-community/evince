@@ -16,9 +16,8 @@
         "--socket=pulseaudio",
         "--filesystem=host",
         "--talk-name=org.gnome.SettingsDaemon.MediaKeys",
-        "--metadata=X-DConf=migrate-path=/org/gnome/evince/",
-        "--talk-name=org.gtk.vfs",
         "--talk-name=org.gtk.vfs.*",
+        "--filesystem=xdg-run/gvfsd",
         "--talk-name=org.gnome.SessionManager",
         "--talk-name=org.freedesktop.FileManager1",
         "--own-name=org.gnome.evince",
@@ -45,6 +44,7 @@
         "*.a"
     ],
     "modules": [
+        "python3-gi-docgen-dependencies.json",
         {
             "name": "webp-pixbuf-loader",
             "buildsystem": "meson",
@@ -60,8 +60,8 @@
                 {
                     "type": "git",
                     "url": "https://github.com/aruiz/webp-pixbuf-loader.git",
-                    "commit": "ffddc060497ee11d6cc573dae01a528b357b91ec",
-                    "tag": "0.0.3"
+                    "commit": "a35014104a226265e44fe30fcdb4df9305af3466",
+                    "tag": "0.2.4"
                 }
             ],
             "post-install": [
@@ -77,8 +77,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://poppler.freedesktop.org/poppler-data-0.4.10.tar.gz",
-                    "sha256": "6e2fcef66ec8c44625f94292ccf8af9f1d918b410d5aa69c274ce67387967b30",
+                    "url": "https://poppler.freedesktop.org/poppler-data-0.4.12.tar.gz",
+                    "sha256": "c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74",
                     "x-checker-data": {
                         "type": "anitya",
                         "project-id": 3687,
@@ -95,11 +95,12 @@
                 "-DCMAKE_INSTALL_INCLUDEDIR=/app/include",
                 "-DBUILD_GTK_TESTS=OFF",
                 "-DBUILD_CPP_TESTS=OFF",
-                "-DENABLE_SPLASH=OFF",
-                "-DENABLE_UTILS=OFF",
                 "-DENABLE_CPP=OFF",
+                "-DENABLE_BOOST=OFF",
                 "-DENABLE_GOBJECT_INTROSPECTION=OFF",
-                "-DENABLE_LIBOPENJPEG=openjpeg2"
+                "-DENABLE_LIBOPENJPEG=openjpeg2",
+                "-DENABLE_QT5=OFF",
+                "-DENABLE_QT6=OFF"
             ],
             "cleanup": [
                 "/bin"
@@ -107,8 +108,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://poppler.freedesktop.org/poppler-21.06.1.tar.xz",
-                    "sha256": "86b09e5a02de40081a3916ef8711c5128eaf4b1fc59d5f87d0ec66f04f595db4",
+                    "url": "https://poppler.freedesktop.org/poppler-23.07.0.tar.xz",
+                    "sha256": "f29b4b4bf47572611176454c8f21506d71d27eca5011a39aa44038b30b957db0",
                     "x-checker-data": {
                         "type": "anitya",
                         "project-id": 3686,
@@ -164,8 +165,12 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/gspell/1.9/gspell-1.9.1.tar.xz",
-                    "sha256": "dcbb769dfdde8e3c0a8ed3102ce7e661abbf7ddf85df08b29915e92cd723abdd"
+                    "url": "https://download.gnome.org/sources/gspell/1.12/gspell-1.12.1.tar.xz",
+                    "sha256": "8ec44f32052e896fcdd4926eb814a326e39a5047e251eec7b9056fbd9444b0f1",
+                    "x-checker-data": {
+                        "type": "gnome",
+                        "name": "gspell"
+                    }
                 }
             ]
         },
@@ -183,8 +188,12 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.gnome.org/sources/gnome-desktop/40/gnome-desktop-40.0.tar.xz",
-                    "sha256": "20abfd3f831e4e8092b55839311661dc73b2bf13fc9bef71c4a5a4475da9ee04"
+                    "url": "https://download.gnome.org/sources/gnome-desktop/44/gnome-desktop-44.0.tar.xz",
+                    "sha256": "42c773745d84ba14bc1cf1c4c6f4606148803a5cd337941c63964795f3c59d42",
+                    "x-checker-data": {
+                        "type": "gnome",
+                        "name": "gnome-desktop"
+                    }
                 }
             ]
         },
@@ -194,14 +203,15 @@
             "config-opts": [
                 "-Dnautilus=false",
                 "-Dthumbnailer=false",
-                "-Dgtk_doc=false",
-                "-Dintrospection=false",
+                "-Dgtk_doc=true",
+                "-Dintrospection=true",
                 "-Duser_doc=false",
                 "-Ddevelopment=true"
             ],
             "sources": [
                 {
                     "type": "git",
+                    "branch": "main",
                     "url": "https://gitlab.gnome.org/GNOME/evince.git"
                 }
             ]

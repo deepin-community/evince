@@ -28,9 +28,12 @@
 #include <evince-document.h>
 #include "ev-page-action-widget.h"
 
+#define COMPLETION_RESULTS_WIDTH 50
+
 /* Widget we pass back */
 static void  ev_page_action_widget_init       (EvPageActionWidget      *action_widget);
 static void  ev_page_action_widget_class_init (EvPageActionWidgetClass *action_widget);
+static gboolean ev_page_action_widget_completion_search_is_enabled (EvPageActionWidget *proxy);
 
 enum
 {
@@ -51,6 +54,8 @@ struct _EvPageActionWidget
 	gulong notify_document_signal_id;
 	GtkTreeModel *filter_model;
 	GtkTreeModel *model;
+	GtkEntryCompletion *completion;
+	guint idle_completion_id;
 };
 
 static guint widget_signals[WIDGET_N_SIGNALS] = {0, };
@@ -166,6 +171,46 @@ page_scroll_cb (EvPageActionWidget *action_widget, GdkEventScroll *event)
 	return TRUE;
 }
 
+static inline gboolean
+is_roman (const char s)
+{
+	return s == 'l' || s == 'L' ||
+	       s == 'x' || s == 'X' ||
+	       s == 'v' || s == 'V' ||
+	       s == 'i' || s == 'I';
+}
+
+/* Returns TRUE if the passed string is a number [0-9] or
+ * a roman numeral i.e. only have these characters [lxvi] .
+ * Returns FALSE otherwise. */
+static gboolean
+is_roman_numeral_or_number (const char *text)
+{
+	gboolean look_for_roman;
+	gboolean look_for_digits;
+	char *s;
+
+	s = (char *) text;
+	g_strstrip (s);
+
+	look_for_digits = g_ascii_isdigit (*s);
+	look_for_roman = look_for_digits ? FALSE : is_roman (*s);
+
+	if (!look_for_digits && !look_for_roman)
+		return FALSE;
+
+	s++;
+	while (*s != 0) {
+		if (look_for_digits && !g_ascii_isdigit (*s))
+			return FALSE;
+		if (look_for_roman && !is_roman (*s))
+			return FALSE;
+		s++;
+	}
+
+	return TRUE;
+}
+
 static void
 activate_cb (EvPageActionWidget *action_widget)
 {
@@ -175,12 +220,34 @@ activate_cb (EvPageActionWidget *action_widget)
 	EvLinkAction *link_action;
 	EvLink *link;
 	gchar *link_text;
+	gchar *new_text;
 	gint current_page;
+	gboolean has_sidebar_links;
 
 	model = action_widget->doc_model;
 	current_page = ev_document_model_get_page (model);
 
 	text = gtk_entry_get_text (GTK_ENTRY (action_widget->entry));
+
+	/* If we are not in search mode, i.e. we are entering a page number */
+	if (!ev_page_action_widget_completion_search_is_enabled (action_widget)) {
+		/* Convert utf8 fullwidth numbers (eg. japanese) to halfwidth - fixes #1518 */
+		new_text = g_utf8_normalize (text, -1, G_NORMALIZE_ALL);
+		gtk_entry_set_text (GTK_ENTRY (action_widget->entry), new_text);
+		text = gtk_entry_get_text (GTK_ENTRY (action_widget->entry));
+		g_free (new_text);
+	}
+
+	has_sidebar_links = EV_IS_DOCUMENT_LINKS (action_widget->document) &&
+		ev_document_links_has_document_links (EV_DOCUMENT_LINKS (action_widget->document));
+
+	if (has_sidebar_links && !is_roman_numeral_or_number (text)) {
+		/* Change to search-outline mode */
+		ev_page_action_widget_set_temporary_entry_width (action_widget, 15);
+		ev_page_action_widget_enable_completion_search (action_widget, TRUE);
+		g_signal_emit_by_name (GTK_EDITABLE (action_widget->entry), "changed", NULL);
+		return;
+	}
 
 	link_dest = ev_link_dest_new_page_label (text);
 	link_action = ev_link_action_new_dest (link_dest);
@@ -199,11 +266,25 @@ activate_cb (EvPageActionWidget *action_widget)
 }
 
 static gboolean
+disable_completion_search (EvPageActionWidget *action_widget)
+{
+	ev_page_action_widget_enable_completion_search (action_widget, FALSE);
+	action_widget->idle_completion_id = 0;
+
+	return G_SOURCE_REMOVE;
+}
+
+static gboolean
 focus_out_cb (EvPageActionWidget *action_widget)
 {
         ev_page_action_widget_set_current_page (action_widget,
                                                 ev_document_model_get_page (action_widget->doc_model));
-        return FALSE;
+        g_object_set (action_widget->entry, "xalign", 1.0, NULL);
+        ev_page_action_widget_update_max_width (action_widget);
+        action_widget->idle_completion_id =
+		g_idle_add ((GSourceFunc)disable_completion_search, action_widget);
+
+        return GDK_EVENT_PROPAGATE;
 }
 
 static void
@@ -216,8 +297,9 @@ ev_page_action_widget_init (EvPageActionWidget *action_widget)
 	hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 
         style_context = gtk_widget_get_style_context (hbox);
-        gtk_style_context_add_class (style_context, GTK_STYLE_CLASS_RAISED);
-        gtk_style_context_add_class (style_context, GTK_STYLE_CLASS_LINKED);
+        gtk_style_context_add_class (style_context, "raised");
+        gtk_style_context_add_class (style_context, "linked");
+        gtk_style_context_add_class (style_context, "tnum");
 
 	action_widget->entry = gtk_entry_new ();
 	gtk_widget_add_events (action_widget->entry,
@@ -318,6 +400,18 @@ ev_page_action_widget_set_model (EvPageActionWidget *action_widget,
 }
 
 static void
+ev_page_action_widget_dispose (GObject *object)
+{
+	EvPageActionWidget *action_widget = EV_PAGE_ACTION_WIDGET (object);
+	if (action_widget->idle_completion_id) {
+		g_source_remove (action_widget->idle_completion_id);
+		action_widget->idle_completion_id = 0;
+	}
+
+        G_OBJECT_CLASS (ev_page_action_widget_parent_class)->dispose (object);
+}
+
+static void
 ev_page_action_widget_finalize (GObject *object)
 {
 	EvPageActionWidget *action_widget = EV_PAGE_ACTION_WIDGET (object);
@@ -337,6 +431,8 @@ ev_page_action_widget_finalize (GObject *object)
 					      (gpointer)&action_widget->doc_model);
 		action_widget->doc_model = NULL;
 	}
+
+	g_clear_object (&action_widget->completion);
 
         ev_page_action_widget_set_document (action_widget, NULL);
 
@@ -366,6 +462,7 @@ ev_page_action_widget_class_init (EvPageActionWidgetClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
         GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
+	object_class->dispose = ev_page_action_widget_dispose;
 	object_class->finalize = ev_page_action_widget_finalize;
         widget_class->get_preferred_width = ev_page_action_widget_get_preferred_width;
 
@@ -403,10 +500,10 @@ match_selected_cb (GtkEntryCompletion *completion,
 		g_object_unref (link);
 
 	gtk_tree_iter_free (iter);
-	
+
 	return TRUE;
 }
-		   
+
 
 static void
 display_completion_text (GtkCellLayout      *cell_layout,
@@ -429,7 +526,7 @@ display_completion_text (GtkCellLayout      *cell_layout,
 
 	if (link)
 		g_object_unref (link);
-	
+
 	gtk_tree_iter_free (iter);
 }
 
@@ -511,7 +608,7 @@ build_new_tree_cb (GtkTreeModel *model,
 		g_object_unref (link);
 		return FALSE;
 	}
-	
+
 	type = ev_link_action_get_action_type (action);
 
 	if (type == EV_LINK_ACTION_TYPE_GOTO_DEST) {
@@ -522,9 +619,9 @@ build_new_tree_cb (GtkTreeModel *model,
 				    0, iter,
 				    -1);
 	}
-	
+
 	g_object_unref (link);
-	
+
 	return FALSE;
 }
 
@@ -563,6 +660,8 @@ ev_page_action_widget_update_links_model (EvPageActionWidget *proxy, GtkTreeMode
 	filter_model = get_filter_model_from_model (model);
 
 	completion = gtk_entry_completion_new ();
+	g_clear_object (&proxy->completion);
+	proxy->completion = completion;
 	g_object_set (G_OBJECT (completion),
 		      "popup-set-width", FALSE,
 		      "model", filter_model,
@@ -577,7 +676,7 @@ ev_page_action_widget_update_links_model (EvPageActionWidget *proxy, GtkTreeMode
 	renderer = (GtkCellRenderer *)
 		g_object_new (GTK_TYPE_CELL_RENDERER_TEXT,
 			      "ellipsize", PANGO_ELLIPSIZE_END,
-			      "width_chars", 30,
+			      "width_chars", COMPLETION_RESULTS_WIDTH,
 			      NULL);
 	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (completion), renderer, TRUE);
 	gtk_cell_layout_set_cell_data_func (GTK_CELL_LAYOUT (completion),
@@ -585,8 +684,6 @@ ev_page_action_widget_update_links_model (EvPageActionWidget *proxy, GtkTreeMode
 					    (GtkCellLayoutDataFunc) display_completion_text,
 					    proxy, NULL);
 	gtk_entry_set_completion (GTK_ENTRY (proxy->entry), completion);
-
-	g_object_unref (completion);
 }
 
 void
@@ -595,3 +692,35 @@ ev_page_action_widget_grab_focus (EvPageActionWidget *proxy)
 	gtk_widget_grab_focus (proxy->entry);
 }
 
+void
+ev_page_action_widget_clear (EvPageActionWidget *proxy)
+{
+	gtk_entry_set_text (GTK_ENTRY (proxy->entry), "");
+}
+
+/* Sets width of the text entry, width will be restablished
+ * to default one on focus_out event. This function is used
+ * when searching the Outline, so the user has more space
+ * to write the search term. */
+void
+ev_page_action_widget_set_temporary_entry_width (EvPageActionWidget *proxy, gint width)
+{
+	gtk_entry_set_width_chars (GTK_ENTRY (proxy->entry), width);
+	/* xalign will also be restablished on focus_out */
+	g_object_set (proxy->entry, "xalign", 0., NULL);
+}
+
+/* Enables or disables the completion search on @proxy according to @enable */
+void
+ev_page_action_widget_enable_completion_search (EvPageActionWidget *proxy, gboolean enable)
+{
+	GtkEntryCompletion *completion = enable ? proxy->completion : NULL;
+	gtk_entry_set_completion (GTK_ENTRY (proxy->entry), completion);
+}
+
+/* Returns whether the completion search is enabled in @proxy */
+static gboolean
+ev_page_action_widget_completion_search_is_enabled (EvPageActionWidget *proxy)
+{
+	return gtk_entry_get_completion (GTK_ENTRY (proxy->entry)) != NULL;
+}

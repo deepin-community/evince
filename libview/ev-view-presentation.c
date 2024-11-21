@@ -84,6 +84,7 @@ struct _EvViewPresentation
 
 	/* Animations */
 	gboolean               enable_animations;
+        gboolean               animation_finished;
 	EvTransitionAnimation *animation;
 
 	/* Links */
@@ -116,11 +117,6 @@ static void ev_view_presentation_set_cursor_for_location (EvViewPresentation *pv
 
 G_DEFINE_TYPE (EvViewPresentation, ev_view_presentation, GTK_TYPE_WIDGET)
 
-#if !GTK_CHECK_VERSION(3, 20, 0)
-static GdkRGBA black = { 0., 0., 0., 1. };
-static GdkRGBA white = { 1., 1., 1., 1. };
-#endif
-
 static void
 ev_view_presentation_set_normal (EvViewPresentation *pview)
 {
@@ -130,12 +126,8 @@ ev_view_presentation_set_normal (EvViewPresentation *pview)
 		return;
 
 	pview->state = EV_PRESENTATION_NORMAL;
-#if GTK_CHECK_VERSION(3, 20, 0)
 	gtk_style_context_remove_class (gtk_widget_get_style_context (widget),
 					"white-mode");
-#else
-        gdk_window_set_background_rgba (gtk_widget_get_window (widget), &black);
-#endif
         gtk_widget_queue_draw (widget);
 }
 
@@ -148,12 +140,8 @@ ev_view_presentation_set_black (EvViewPresentation *pview)
 		return;
 
 	pview->state = EV_PRESENTATION_BLACK;
-#if GTK_CHECK_VERSION(3, 20, 0)
 	gtk_style_context_remove_class (gtk_widget_get_style_context (widget),
 					"white-mode");
-#else
-        gdk_window_set_background_rgba (gtk_widget_get_window (widget), &black);
-#endif
         gtk_widget_queue_draw (widget);
 }
 
@@ -166,13 +154,8 @@ ev_view_presentation_set_white (EvViewPresentation *pview)
 		return;
 
 	pview->state = EV_PRESENTATION_WHITE;
-#if GTK_CHECK_VERSION(3, 20, 0)
 	gtk_style_context_add_class (gtk_widget_get_style_context (widget),
 				     "white-mode");
-#else
-        gdk_window_set_background_rgba (gtk_widget_get_window (widget), &white);
-        gtk_widget_queue_draw (widget);
-#endif
 }
 
 static void
@@ -239,7 +222,7 @@ transition_next_page (EvViewPresentation *pview)
 	pview->trans_timeout_id = 0;
 	ev_view_presentation_next_page (pview);
 
-	return FALSE;
+	return G_SOURCE_REMOVE;
 }
 
 static void
@@ -274,16 +257,13 @@ ev_view_presentation_transition_start (EvViewPresentation *pview)
 static void
 ev_view_presentation_animation_cancel (EvViewPresentation *pview)
 {
-	if (pview->animation) {
-		g_object_unref (pview->animation);
-		pview->animation = NULL;
-	}
+	g_clear_object (&pview->animation);
 }
 
 static void
 ev_view_presentation_transition_animation_finish (EvViewPresentation *pview)
 {
-	ev_view_presentation_animation_cancel (pview);
+        pview->animation_finished = TRUE;
 	ev_view_presentation_transition_start (pview);
 	gtk_widget_queue_draw (GTK_WIDGET (pview));
 }
@@ -870,8 +850,8 @@ ev_view_presentation_get_link_at_location (EvViewPresentation *pview,
 }
 
 static void
-ev_vew_presentation_handle_link (EvViewPresentation *pview,
-                                 EvLink             *link)
+ev_view_presentation_handle_link (EvViewPresentation *pview,
+                                  EvLink             *link)
 {
 	EvLinkAction *action;
 
@@ -956,7 +936,7 @@ hide_cursor_timeout_cb (EvViewPresentation *pview)
 	ev_view_presentation_set_cursor (pview, EV_VIEW_CURSOR_HIDDEN);
 	pview->hide_cursor_timeout_id = 0;
 
-	return FALSE;
+	return G_SOURCE_REMOVE;
 }
 
 static void
@@ -995,29 +975,18 @@ ev_view_presentation_dispose (GObject *object)
 {
 	EvViewPresentation *pview = EV_VIEW_PRESENTATION (object);
 
-	if (pview->document) {
-		g_object_unref (pview->document);
-		pview->document = NULL;
-	}
+	g_clear_object (&pview->document);
 
 	ev_view_presentation_animation_cancel (pview);
 	ev_view_presentation_transition_stop (pview);
 	ev_view_presentation_hide_cursor_timeout_stop (pview);
         ev_view_presentation_reset_jobs (pview);
 
-	if (pview->current_surface) {
-		cairo_surface_destroy (pview->current_surface);
-		pview->current_surface = NULL;
-	}
-
-	if (pview->page_cache) {
-		g_object_unref (pview->page_cache);
-		pview->page_cache = NULL;
-	}
+	g_clear_pointer (&pview->current_surface, cairo_surface_destroy);
+	g_clear_object (&pview->page_cache);
 
 	if (pview->goto_window) {
-		gtk_widget_destroy (pview->goto_window);
-		pview->goto_window = NULL;
+		g_clear_pointer (&pview->goto_window, gtk_widget_destroy);
 		pview->goto_entry = NULL;
 	}
 
@@ -1048,6 +1017,7 @@ ev_view_presentation_draw_end_page (EvViewPresentation *pview,
 	PangoLayout *layout;
 	PangoFontDescription *font_desc;
 	gchar *markup;
+	int text_width, text_height, x_center;
 	const gchar *text = _("End of presentation. Press Esc or click to exit.");
 
 	if (pview->state != EV_PRESENTATION_END)
@@ -1061,9 +1031,9 @@ ev_view_presentation_draw_end_page (EvViewPresentation *pview,
 	font_desc = pango_font_description_new ();
 	pango_font_description_set_size (font_desc, 16 * PANGO_SCALE);
 	pango_layout_set_font_description (layout, font_desc);
-
-        gtk_render_layout (gtk_widget_get_style_context (widget),
-                           cr, 15, 15, layout);
+	pango_layout_get_pixel_size (layout, &text_width, &text_height);
+	x_center = gtk_widget_get_allocated_width (widget) / 2 - text_width / 2;
+	gtk_render_layout (gtk_widget_get_style_context (widget), cr, x_center, 15, layout);
 
 	pango_font_description_free (font_desc);
 	g_object_unref (layout);
@@ -1078,7 +1048,6 @@ ev_view_presentation_draw (GtkWidget *widget,
 	GdkRectangle        overlap;
 	cairo_surface_t    *surface;
         GdkRectangle        clip_rect;
-#if GTK_CHECK_VERSION(3, 20, 0)
 	GtkStyleContext    *context;
 
 	context = gtk_widget_get_style_context (GTK_WIDGET (pview));
@@ -1086,7 +1055,6 @@ ev_view_presentation_draw (GtkWidget *widget,
                                0, 0,
                                gtk_widget_get_allocated_width (widget),
                                gtk_widget_get_allocated_height (widget));
-#endif
 
         if (!gdk_cairo_get_clip_rectangle (cr, &clip_rect))
                 return FALSE;
@@ -1119,6 +1087,11 @@ ev_view_presentation_draw (GtkWidget *widget,
 
                         cairo_restore (cr);
 		}
+
+                if (pview->animation_finished) {
+                        ev_view_presentation_animation_cancel (pview);
+                        pview->animation_finished = FALSE;
+                }
 
 		return TRUE;
 	}
@@ -1239,7 +1212,7 @@ ev_view_presentation_button_release_event (GtkWidget      *widget,
 								  event->x,
 								  event->y);
 		if (link)
-			ev_vew_presentation_handle_link (pview, link);
+			ev_view_presentation_handle_link (pview, link);
 		else
 			ev_view_presentation_next_page (pview);
 	}
@@ -1314,7 +1287,7 @@ init_presentation (GtkWidget *widget)
 	ev_view_presentation_update_current_page (pview, pview->current_page);
 	ev_view_presentation_hide_cursor_timeout_start (pview);
 
-	return FALSE;
+	return G_SOURCE_REMOVE;
 }
 
 static void
@@ -1352,8 +1325,6 @@ ev_view_presentation_realize (GtkWidget *widget)
 
 	gdk_window_set_user_data (window, widget);
 	gtk_widget_set_window (widget, window);
-        gtk_style_context_set_background (gtk_widget_get_style_context (widget),
-                                          window);
 
 	g_idle_add ((GSourceFunc)init_presentation, widget);
 }
@@ -1522,9 +1493,7 @@ ev_view_presentation_class_init (EvViewPresentationClass *klass)
 	widget_class->motion_notify_event = ev_view_presentation_motion_notify_event;
 	widget_class->scroll_event = ev_view_presentation_scroll_event;
 
-#if GTK_CHECK_VERSION(3, 20, 0)
 	gtk_widget_class_set_css_name (widget_class, "evpresentationview");
-#endif
 
 	gobject_class->constructor = ev_view_presentation_constructor;
 	gobject_class->set_property = ev_view_presentation_set_property;
@@ -1629,37 +1598,11 @@ ev_view_presentation_class_init (EvViewPresentationClass *klass)
 				      GTK_TYPE_SCROLL_TYPE, GTK_SCROLL_PAGE_BACKWARD);
 }
 
-#if !GTK_CHECK_VERSION(3, 20, 0)
-static void
-ev_view_presentation_init_css(void)
-{
-        static gsize initialization_value = 0;
-
-        if (g_once_init_enter (&initialization_value)) {
-                GtkCssProvider *provider;
-
-                provider = gtk_css_provider_new ();
-                gtk_css_provider_load_from_data (provider,
-                                                 "EvViewPresentation {\n"
-                                                 " background-color: black; }",
-                                                 -1, NULL);
-                gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
-                                                           GTK_STYLE_PROVIDER (provider),
-                                                           GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-                g_object_unref (provider);
-                g_once_init_leave (&initialization_value, 1);
-        }
-}
-#endif
-
 static void
 ev_view_presentation_init (EvViewPresentation *pview)
 {
 	gtk_widget_set_can_focus (GTK_WIDGET (pview), TRUE);
         pview->is_constructing = TRUE;
-#if !GTK_CHECK_VERSION(3, 20, 0)
-        ev_view_presentation_init_css();
-#endif
 }
 
 GtkWidget *

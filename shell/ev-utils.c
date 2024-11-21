@@ -46,13 +46,13 @@ create_blur_filter (int radius)
   ConvFilter *filter;
   int x, y;
   double sum;
-  
+
   filter = g_new0 (ConvFilter, 1);
   filter->size = radius * 2 + 1;
   filter->data = g_new (double, filter->size * filter->size);
 
   sum = 0.0;
-  
+
   for (y = 0 ; y < filter->size; y++)
     {
       for (x = 0 ; x < filter->size; x++)
@@ -72,7 +72,7 @@ create_blur_filter (int radius)
     }
 
   return filter;
-  
+
 }
 
 static GdkPixbuf *
@@ -85,7 +85,7 @@ create_shadow (GdkPixbuf *src, int blur_radius,
   static ConvFilter *filter = NULL;
   int src_rowstride, dest_rowstride;
   int src_bpp, dest_bpp;
-  
+
   guchar *src_pixels, *dest_pixels;
 
   if (!filter)
@@ -93,31 +93,31 @@ create_shadow (GdkPixbuf *src, int blur_radius,
 
   if (x_offset < 0)
 	  x_offset = (blur_radius * 4) / 5;
-  
+
   if (y_offset < 0)
 	  y_offset = (blur_radius * 4) / 5;
 
-  
+
   width = gdk_pixbuf_get_width (src) + blur_radius * 2 + x_offset;
   height = gdk_pixbuf_get_height (src) + blur_radius * 2 + y_offset;
 
   dest = gdk_pixbuf_new (gdk_pixbuf_get_colorspace (src), TRUE,
 			 gdk_pixbuf_get_bits_per_sample (src),
 			 width, height);
-  gdk_pixbuf_fill (dest, 0);  
+  gdk_pixbuf_fill (dest, 0);
   src_pixels = gdk_pixbuf_get_pixels (src);
   src_rowstride = gdk_pixbuf_get_rowstride (src);
   src_bpp = gdk_pixbuf_get_has_alpha (src) ? 4 : 3;
-  
+
   dest_pixels = gdk_pixbuf_get_pixels (dest);
   dest_rowstride = gdk_pixbuf_get_rowstride (dest);
   dest_bpp = gdk_pixbuf_get_has_alpha (dest) ? 4 : 3;
-  
+
   for (y = 0; y < height; y++)
     {
       for (x = 0; x < width; x++)
 	{
-	  int sumr = 0, sumg = 0, sumb = 0, suma = 0;
+	  int suma = 0;
 
 	  for (i = 0; i < filter->size; i++)
 	    {
@@ -132,24 +132,13 @@ create_shadow (GdkPixbuf *src, int blur_radius,
 		      src_x < 0 || src_x > gdk_pixbuf_get_width (src))
 		    continue;
 
-		  sumr += src_pixels [src_y * src_rowstride +
-				      src_x * src_bpp + 0] *
-		    filter->data [i * filter->size + j];
-		  sumg += src_pixels [src_y * src_rowstride +
-				      src_x * src_bpp + 1] * 
-		    filter->data [i * filter->size + j];
-
-		  sumb += src_pixels [src_y * src_rowstride +
-				      src_x * src_bpp + 2] * 
-		    filter->data [i * filter->size + j];
-		  
 		  if (src_bpp == 4)
 		    suma += src_pixels [src_y * src_rowstride +
 					src_x * src_bpp + 3] *
 		    filter->data [i * filter->size + j];
 		  else
 			  suma += 0xff;
-		    
+
 		}
 	    }
 
@@ -159,7 +148,7 @@ create_shadow (GdkPixbuf *src, int blur_radius,
 
 	}
     }
-  
+
   return dest;
 }
 
@@ -168,7 +157,7 @@ ev_pixbuf_add_shadow (GdkPixbuf *src, int size,
 		      int x_offset, int y_offset, double opacity)
 {
   GdkPixbuf *dest;
-  
+
   dest = create_shadow (src, size, x_offset, y_offset, opacity);
 
   gdk_pixbuf_composite (src, dest,
@@ -268,7 +257,7 @@ file_filter_add_mime_types (GdkPixbufFormat *format, GtkFileFilter *filter,
 	g_strfreev (mime_types);
 }
 
-void           
+void
 file_chooser_dialog_add_writable_pixbuf_formats (GtkFileChooser *chooser)
 {
 	GSList *pixbuf_formats = NULL;
@@ -318,7 +307,7 @@ get_gdk_pixbuf_format_by_extension (const gchar *uri)
 	for (iter = pixbuf_formats; iter; iter = iter->next) {
 		gchar **extension_list;
 		GdkPixbufFormat *format = iter->data;
-		
+
 		if (gdk_pixbuf_format_is_disabled (format) ||
 	    	    !gdk_pixbuf_format_is_writable (format))
 		            continue;

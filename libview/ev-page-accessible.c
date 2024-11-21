@@ -170,7 +170,7 @@ ev_page_accessible_finalize (GObject *object)
 {
 	EvPageAccessiblePrivate *priv = EV_PAGE_ACCESSIBLE (object)->priv;
 
-	g_clear_pointer (&priv->links, (GDestroyNotify)g_hash_table_destroy);
+        g_clear_pointer (&priv->links, g_hash_table_destroy);
 	clear_children (EV_PAGE_ACCESSIBLE (object));
 
 	G_OBJECT_CLASS (ev_page_accessible_parent_class)->finalize (object);
@@ -723,7 +723,7 @@ ev_page_accessible_get_selection (AtkText *text,
 
 	for (l = view->selection_info.selections; l != NULL; l = l->next) {
 		EvViewSelection *selection = (EvViewSelection *)l->data;
-		gint start, end;
+		gint start = 0, end = 0;
 
 		if (selection->page != self->priv->page)
 			continue;

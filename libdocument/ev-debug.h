@@ -4,7 +4,7 @@
  *
  * Copyright (C) 1998, 1999 Alex Roberts, Evan Lawrence
  * Copyright (C) 2000, 2001 Chema Celorio, Paolo Maggi
- * Copyright (C) 2002 - 2005 Paolo Maggi  
+ * Copyright (C) 2002 - 2005 Paolo Maggi
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  */
- 
+
 /*
- * Modified by the gedit Team, 1998-2005. See the AUTHORS file for a 
- * list of people on the gedit Team.  
+ * Modified by the gedit Team, 1998-2005. See the AUTHORS file for a
+ * list of people on the gedit Team.
  * See the ChangeLog files for a list of changes.
  *
  * $Id: gedit-debug.h 4809 2006-04-08 14:46:31Z pborelli $
@@ -32,14 +32,17 @@
 
 /* Modified by Evince Team */
 
+#pragma once
+
 #if !defined (EVINCE_COMPILATION)
 #error "This is a private header."
 #endif
 
-#ifndef __EV_DEBUG_H__
-#define __EV_DEBUG_H__
-
 #include <glib-object.h>
+
+#include "ev-macros.h"
+
+G_BEGIN_DECLS
 
 #define EV_GET_TYPE_NAME(instance) g_type_name_from_instance ((gpointer)instance)
 
@@ -62,8 +65,6 @@ static void ev_profiler_stop(EvProfileSection section, const gchar *format, ...)
 #endif
 
 #else /* ENABLE_DEBUG */
-
-G_BEGIN_DECLS
 
 /*
  * Set an environmental var of the same name to turn on
@@ -103,19 +104,22 @@ typedef enum {
 void _ev_debug_init     (void);
 void _ev_debug_shutdown (void);
 
+EV_PRIVATE
 void ev_debug_message  (EvDebugSection   section,
 			const gchar     *file,
 			gint             line,
 			const gchar     *function,
 			const gchar     *format, ...) G_GNUC_PRINTF(5, 6);
+EV_PRIVATE
 void ev_profiler_start (EvProfileSection section,
 			const gchar     *format, ...) G_GNUC_PRINTF(2, 3);
+EV_PRIVATE
 void ev_profiler_stop  (EvProfileSection section,
 			const gchar     *format, ...) G_GNUC_PRINTF(2, 3);
 
+EV_PRIVATE
 EvDebugBorders ev_debug_get_debug_borders (void);
 
-G_END_DECLS
-
 #endif /* EV_ENABLE_DEBUG */
-#endif /* __EV_DEBUG_H__ */
+
+G_END_DECLS

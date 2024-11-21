@@ -1,8 +1,6 @@
 usr/bin
-usr/lib/*/nautilus/*/*.so
 usr/libexec/evinced
 usr/lib/systemd/user/
-usr/share/GConf/gsettings
 usr/share/metainfo
 usr/share/applications
 usr/share/dbus-1

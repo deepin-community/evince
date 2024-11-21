@@ -12,9 +12,6 @@ extern DviFontInfo ovf_font_info;
 #if 0
 extern DviFontInfo tt_font_info;
 #endif
-#ifdef WITH_TYPE1_FONTS
-extern DviFontInfo t1_font_info;
-#endif
 extern DviFontInfo afm_font_info;
 extern DviFontInfo tfm_font_info;
 extern DviFontInfo ofm_font_info;
@@ -29,9 +26,6 @@ static struct fontinfo {
 #if 0
 	{&tt_font_info, "TrueType fonts", 0},
 #endif
-#ifdef WITH_TYPE1_FONTS
-	{&t1_font_info, "Type1 PostScript fonts", 0},
-#endif
 	{&pk_font_info, "Packed bitmap (auto-generated)", 1},
 	{&pkn_font_info, "Packed bitmap", -2},
 	{&gf_font_info, "Metafont's generic font format", 1},
@@ -44,7 +38,7 @@ static struct fontinfo {
 void mdvi_register_fonts (void)
 {
     struct fontinfo *type;
-    
+
     if (!registered) {
 	for(type = known_fonts; type->info; type++) {
 			mdvi_register_font_type(type->info, type->klass);

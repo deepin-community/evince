@@ -1,22 +1,16 @@
-enable_gtk_doc = get_option('gtk_doc')
 enable_user_doc = get_option('user_doc')
 if enable_gtk_doc
-  glib_prefix = glib_dep.get_pkgconfig_variable('prefix')
-  gtk_prefix = gtk_dep.get_pkgconfig_variable('prefix')
+  glib_prefix = glib_dep.get_variable(pkgconfig: 'prefix')
+  gtk_prefix = gtk_dep.get_variable(pkgconfig: 'prefix')
 
-  common_fixxref_args = [
-    '--extra-dir=' + join_paths(glib_prefix, gnome.gtkdoc_html_dir('glib')),
-    '--extra-dir=' + join_paths(glib_prefix, gnome.gtkdoc_html_dir('gio')),
-    '--extra-dir=' + join_paths(gtk_prefix, gnome.gtkdoc_html_dir('gdk')),
-    '--extra-dir=' + join_paths(gtk_prefix, gnome.gtkdoc_html_dir('gdk-pixbuf')),
-    '--extra-dir=' + join_paths(gtk_prefix, gnome.gtkdoc_html_dir('gtk')),
-  ]
+  docs_dir = get_option('prefix') / get_option('datadir') / 'doc'
+
+  toml_conf = configuration_data()
+  toml_conf.set('version', meson.project_version())
+  gidocgen = find_program('gi-docgen', required: get_option('gtk_doc'))
 
   subdir('reference/libdocument')
   subdir('reference/libview')
-  if enable_viewer
-    subdir('reference/shell')
-  endif
 endif
 
 if enable_user_doc
@@ -98,8 +92,6 @@ if enable_user_doc
     'figures/annotations-nav-to-page.png',
     'figures/emblem-system-symbolic.svg',
     'figures/org.gnome.Evince.svg',
-    'figures/print-select.png',
-    'figures/reverse-collate.png',
     'figures/zoom.png',
   ]
 

@@ -1,4 +1,3 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8; c-indent-level: 8 -*- */
 /*
  * Copyright (C) 2005, Nickolay V. Shmyrev <nshmyrev@yandex.ru>
  *
@@ -25,6 +24,7 @@
 #include "djvu-links.h"
 #include "djvu-document-private.h"
 #include "ev-file-exporter.h"
+#include "ev-document-info.h"
 #include "ev-document-misc.h"
 #include "ev-document-find.h"
 #include "ev-document-links.h"
@@ -73,7 +73,7 @@ ev_djvu_error_quark (void)
 	static GQuark q = 0;
 	if (q == 0)
 		q = g_quark_from_string ("ev-djvu-quark");
-	
+
 	return q;
 }
 
@@ -83,7 +83,7 @@ handle_message (const ddjvu_message_t *msg, GError **error)
 	switch (msg->m_any.tag) {
 	        case DDJVU_ERROR: {
 			gchar *error_str;
-			
+
 			if (msg->m_error.filename) {
 				error_str = g_strdup_printf ("DjvuLibre error: %s:%d",
 							     msg->m_error.filename,
@@ -92,16 +92,16 @@ handle_message (const ddjvu_message_t *msg, GError **error)
 				error_str = g_strdup_printf ("DjvuLibre error: %s",
 							     msg->m_error.message);
 			}
-			
+
 			if (error) {
 				g_set_error_literal (error, EV_DJVU_ERROR, 0, error_str);
 			} else {
 				g_warning ("%s", error_str);
 			}
-				
+
 			g_free (error_str);
 			return;
-			}						     
+			}
 			break;
 	        default:
 			break;
@@ -113,7 +113,7 @@ djvu_handle_events (DjvuDocument *djvu_document, int wait, GError **error)
 {
 	ddjvu_context_t *ctx = djvu_document->d_context;
 	const ddjvu_message_t *msg;
-	
+
 	if (!ctx)
 		return;
 
@@ -211,10 +211,10 @@ djvu_document_load (EvDocument  *document,
 		g_free (filename);
 		ddjvu_document_release (djvu_document->d_document);
 		djvu_document->d_document = NULL;
-		
+
 		return FALSE;
 	}
-	
+
 	g_free (djvu_document->uri);
 	djvu_document->uri = g_strdup (uri);
 
@@ -233,7 +233,7 @@ djvu_document_load (EvDocument  *document,
 	for (i = 0; i < n_files; i++) {
 		ddjvu_fileinfo_t fileinfo;
 		gchar *file;
-			
+
 		ddjvu_document_get_fileinfo (djvu_document->d_document,
 					     i, &fileinfo);
 
@@ -287,9 +287,9 @@ int
 djvu_document_get_n_pages (EvDocument  *document)
 {
 	DjvuDocument *djvu_document = DJVU_DOCUMENT (document);
-	
+
 	g_return_val_if_fail (djvu_document->d_document, 0);
-	
+
 	return ddjvu_document_get_pagenum (djvu_document->d_document);
 }
 
@@ -302,10 +302,10 @@ document_get_page_size (DjvuDocument *djvu_document,
 {
 	ddjvu_pageinfo_t info;
 	ddjvu_status_t r;
-	
+
 	while ((r = ddjvu_document_get_pageinfo(djvu_document->d_document, page, &info)) < DDJVU_JOB_OK)
 		djvu_handle_events(djvu_document, TRUE, NULL);
-	
+
 	if (r >= DDJVU_JOB_FAILED)
 		djvu_handle_events(djvu_document, TRUE, NULL);
 
@@ -332,7 +332,7 @@ djvu_document_get_page_size (EvDocument   *document,
 }
 
 static cairo_surface_t *
-djvu_document_render (EvDocument      *document, 
+djvu_document_render (EvDocument      *document,
 		      EvRenderContext *rc)
 {
 	DjvuDocument *djvu_document = DJVU_DOCUMENT (document);
@@ -348,7 +348,7 @@ djvu_document_render (EvDocument      *document,
 	gint transformed_width, transformed_height;
 
 	d_page = ddjvu_page_create_by_pageno (djvu_document->d_document, rc->page->index);
-	
+
 	while (!ddjvu_page_decoding_done (d_page))
 		djvu_handle_events(djvu_document, TRUE, NULL);
 
@@ -365,15 +365,15 @@ djvu_document_render (EvDocument      *document,
 	switch (rc->rotation) {
 	        case 90:
 			rotation += DDJVU_ROTATE_270;
-			
+
 			break;
 	        case 180:
 			rotation += DDJVU_ROTATE_180;
-			
+
 			break;
 	        case 270:
 			rotation += DDJVU_ROTATE_90;
-			
+
 			break;
 	        default:
 			rotation += DDJVU_ROTATE_0;
@@ -393,7 +393,7 @@ djvu_document_render (EvDocument      *document,
 	rrect = prect;
 
 	ddjvu_page_set_rotation (d_page, rotation);
-	
+
 	buffer_modified = ddjvu_page_render (d_page, DDJVU_RENDER_COLOR,
 					     &prect,
 					     &rrect,
@@ -444,12 +444,12 @@ djvu_document_get_thumbnail (EvDocument      *document,
 	gdouble page_width, page_height;
 	gint thumb_width, thumb_height;
 	guchar *pixels;
-	
+
 	g_return_val_if_fail (djvu_document->d_document, NULL);
 
 	djvu_document_get_page_size (EV_DOCUMENT(djvu_document), rc->page,
 				     &page_width, &page_height);
-	
+
 	ev_render_context_compute_scaled_size (rc, page_width, page_height,
 					       &thumb_width, &thumb_height);
 
@@ -457,14 +457,14 @@ djvu_document_get_thumbnail (EvDocument      *document,
 				 thumb_width, thumb_height);
 	gdk_pixbuf_fill (pixbuf, 0xffffffff);
 	pixels = gdk_pixbuf_get_pixels (pixbuf);
-	
+
 	while (ddjvu_thumbnail_status (djvu_document->d_document, rc->page->index, 1) < DDJVU_JOB_OK)
 		djvu_handle_events(djvu_document, TRUE, NULL);
-		    
-	ddjvu_thumbnail_render (djvu_document->d_document, rc->page->index, 
+
+	ddjvu_thumbnail_render (djvu_document->d_document, rc->page->index,
 				&thumb_width, &thumb_height,
 				djvu_document->thumbs_format,
-				gdk_pixbuf_get_rowstride (pixbuf), 
+				gdk_pixbuf_get_rowstride (pixbuf),
 				(gchar *)pixels);
 
 	rotated_pixbuf = gdk_pixbuf_rotate_simple (pixbuf, 360 - rc->rotation);
@@ -522,6 +522,31 @@ djvu_document_get_thumbnail_surface (EvDocument      *document,
 	return surface;
 }
 
+static EvDocumentInfo *
+djvu_document_get_info (EvDocument *document)
+{
+        DjvuDocument *djvu_document = DJVU_DOCUMENT (document);
+        const char *xmp;
+        miniexp_t anno;
+        EvDocumentInfo *info;
+
+        info = ev_document_info_new ();
+
+        anno = ddjvu_document_get_anno (djvu_document->d_document, 1);
+        if (anno == miniexp_nil) {
+                ddjvu_miniexp_release (djvu_document->d_document, anno);
+                return info;
+        }
+
+        xmp = ddjvu_anno_get_xmp (anno);
+        if (xmp != NULL) {
+                ev_document_info_set_from_xmp (info, xmp, -1);
+        }
+
+        ddjvu_miniexp_release (djvu_document->d_document, anno);
+        return info;
+}
+
 static void
 djvu_document_finalize (GObject *object)
 {
@@ -529,16 +554,16 @@ djvu_document_finalize (GObject *object)
 
 	if (djvu_document->d_document)
 	    ddjvu_document_release (djvu_document->d_document);
-	    
+
 	if (djvu_document->opts)
 	    g_string_free (djvu_document->opts, TRUE);
 
 	if (djvu_document->ps_filename)
 	    g_free (djvu_document->ps_filename);
-	    
-	if (djvu_document->fileinfo_pages) 
+
+	if (djvu_document->fileinfo_pages)
 	    g_free (djvu_document->fileinfo_pages);
-	
+
 	if (djvu_document->file_ids)
 	    g_hash_table_destroy (djvu_document->file_ids);
 
@@ -546,7 +571,7 @@ djvu_document_finalize (GObject *object)
 	ddjvu_format_release (djvu_document->d_format);
 	ddjvu_format_release (djvu_document->thumbs_format);
 	g_free (djvu_document->uri);
-	
+
 	G_OBJECT_CLASS (djvu_document_parent_class)->finalize (object);
 }
 
@@ -566,6 +591,7 @@ djvu_document_class_init (DjvuDocumentClass *klass)
 	ev_document_class->render = djvu_document_render;
 	ev_document_class->get_thumbnail = djvu_document_get_thumbnail;
 	ev_document_class->get_thumbnail_surface = djvu_document_get_thumbnail_surface;
+	ev_document_class->get_info = djvu_document_get_info;
 }
 
 static gchar *
@@ -583,7 +609,7 @@ djvu_text_copy (DjvuDocument *djvu_document,
 
 	if (page_text != miniexp_nil) {
 		DjvuTextPage *page = djvu_text_page_new (page_text);
-		
+
 		text = djvu_text_page_copy (page, rectangle);
 		djvu_text_page_free (page);
 		ddjvu_miniexp_release (djvu_document->d_document, page_text);
@@ -701,10 +727,10 @@ djvu_selection_get_selected_text (EvSelection     *selection,
 	document_get_page_size (djvu_document, page->index, NULL, &height, &dpi);
 	djvu_convert_to_doc_rect (&rectangle, points, height, dpi);
       	text = djvu_text_copy (djvu_document, page->index, &rectangle);
-      
+
       	if (text == NULL)
 		text = g_strdup ("");
-		
+
     	return text;
 }
 
@@ -770,9 +796,9 @@ djvu_document_file_exporter_begin (EvFileExporter        *exporter,
 				   EvFileExporterContext *fc)
 {
 	DjvuDocument *djvu_document = DJVU_DOCUMENT (exporter);
-	
+
 	if (djvu_document->ps_filename)
-		g_free (djvu_document->ps_filename);	
+		g_free (djvu_document->ps_filename);
 	djvu_document->ps_filename = g_strdup (fc->filename);
 
 	g_string_assign (djvu_document->opts, "-page=");
@@ -783,14 +809,14 @@ djvu_document_file_exporter_do_page (EvFileExporter  *exporter,
 				     EvRenderContext *rc)
 {
 	DjvuDocument *djvu_document = DJVU_DOCUMENT (exporter);
-	
-	g_string_append_printf (djvu_document->opts, "%d,", (rc->page->index) + 1); 
+
+	g_string_append_printf (djvu_document->opts, "%d,", (rc->page->index) + 1);
 }
 
 static void
 djvu_document_file_exporter_end (EvFileExporter *exporter)
 {
-	int d_optc = 1; 
+	int d_optc = 1;
 	const char *d_optv[d_optc];
 	ddjvu_job_t *job;
 
@@ -801,15 +827,15 @@ djvu_document_file_exporter_end (EvFileExporter *exporter)
 		g_warning ("Cannot open file “%s”.", djvu_document->ps_filename);
 		return;
 	}
-	
-	d_optv[0] = djvu_document->opts->str; 
+
+	d_optv[0] = djvu_document->opts->str;
 
 	job = ddjvu_document_print(djvu_document->d_document, fn, d_optc, d_optv);
-	while (!ddjvu_job_done(job)) {	
+	while (!ddjvu_job_done(job)) {
 		djvu_handle_events (djvu_document, TRUE, NULL);
 	}
 
-	fclose(fn); 
+	fclose(fn);
 }
 
 static EvFileExporterCapabilities
@@ -835,7 +861,7 @@ static void
 djvu_document_init (DjvuDocument *djvu_document)
 {
 	guint masks[4] = { 0xff0000, 0xff00, 0xff, 0xff000000 };
-	
+
 	djvu_document->d_context = ddjvu_context_create ("Evince");
 	djvu_document->d_format = ddjvu_format_create (DDJVU_FORMAT_RGBMASK32, 4, masks);
 	ddjvu_format_set_row_order (djvu_document->d_format, 1);
@@ -845,7 +871,7 @@ djvu_document_init (DjvuDocument *djvu_document)
 
 	djvu_document->ps_filename = NULL;
 	djvu_document->opts = g_string_new ("");
-	
+
 	djvu_document->d_document = NULL;
 }
 
@@ -870,7 +896,7 @@ djvu_document_find_find_text (EvDocumentFind   *document,
 
 	if (page_text != miniexp_nil) {
 		DjvuTextPage *tpage = djvu_text_page_new (page_text);
-		
+
 		djvu_text_page_index_text (tpage, case_sensitive);
 		if (tpage->links->len > 0) {
 			if (!case_sensitive) {
@@ -899,7 +925,72 @@ djvu_document_find_find_text (EvDocumentFind   *document,
 		r->y1 = height - r->y2 * 72.0 / dpi;
 		r->y2 = height - tmp * 72.0 / dpi;
 	}
-	
+
+
+	return matches;
+}
+
+static GList *
+djvu_document_find_find_text_extended (EvDocumentFind *document,
+				       EvPage *page,
+				       const char *text,
+				       EvFindOptions options)
+{
+	DjvuDocument *djvu_document = DJVU_DOCUMENT (document);
+	miniexp_t page_text;
+	gdouble width, height, dpi;
+	GList *matches = NULL, *l;
+	char *search_text = NULL;
+	gboolean case_sensitive = (options & EV_FIND_CASE_SENSITIVE);
+
+	g_return_val_if_fail (text != NULL, NULL);
+
+	while ((page_text = ddjvu_document_get_pagetext (djvu_document->d_document,
+							 page->index,
+							 "char")) == miniexp_dummy)
+		djvu_handle_events (djvu_document, TRUE, NULL);
+
+	if (page_text != miniexp_nil) {
+		DjvuTextPage *tpage = djvu_text_page_new (page_text);
+
+		djvu_text_page_index_text (tpage, case_sensitive);
+		if (tpage->links->len > 0) {
+			if (!case_sensitive) {
+				search_text = g_utf8_casefold (text, -1);
+				djvu_text_page_search (tpage, search_text);
+				g_free (search_text);
+			} else {
+				djvu_text_page_search (tpage, text);
+			}
+			matches = tpage->results;
+		}
+		djvu_text_page_free (tpage);
+		ddjvu_miniexp_release (djvu_document->d_document, page_text);
+	}
+	if (!matches)
+		return NULL;
+
+	document_get_page_size (djvu_document, page->index, &width, &height, &dpi);
+	for (l = matches; l && l->data; l = g_list_next (l)) {
+		EvRectangle *r = (EvRectangle *)l->data;
+		gdouble tmp = r->y1;
+
+		r->x1 *= 72.0 / dpi;
+		r->x2 *= 72.0 / dpi;
+
+		r->y1 = height - r->y2 * 72.0 / dpi;
+		r->y2 = height - tmp * 72.0 / dpi;
+
+		EvFindRectangle *ev_rect = ev_find_rectangle_new ();
+		ev_rect->x1 = r->x1;
+		ev_rect->x2 = r->x2;
+		ev_rect->y1 = r->y1;
+		ev_rect->y2 = r->y2;
+
+		ev_rectangle_free (r);
+		l->data = ev_rect;
+	}
+
 
 	return matches;
 }
@@ -914,6 +1005,7 @@ static void
 djvu_document_find_iface_init (EvDocumentFindInterface *iface)
 {
         iface->find_text = djvu_document_find_find_text;
+        iface->find_text_extended = djvu_document_find_find_text_extended;
 	iface->get_supported_options = djvu_document_find_get_supported_options;
 }
 

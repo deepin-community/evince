@@ -34,7 +34,7 @@ typedef struct {
 
 	gdouble xscale;
 	gdouble yscale;
-	
+
 	Ulong fg;
 	Ulong bg;
 
@@ -103,7 +103,7 @@ dvi_cairo_draw_rule (DviContext *dvi,
 	cairo_device = (DviCairoDevice *) dvi->device.device_data;
 
 	color = cairo_device->fg;
-	
+
 	cairo_save (cairo_device->cr);
 	cairo_scale (cairo_device->cr, cairo_device->xscale, cairo_device->yscale);
 
@@ -158,7 +158,7 @@ dvi_cairo_draw_ps (DviContext *dvi,
 	spectre_render_context_set_scale (rc,
 					  (double)width / w,
 					  (double)height / h);
-	spectre_document_render_full (psdoc, rc, &data, &row_length);	
+	spectre_document_render_full (psdoc, rc, &data, &row_length);
 	status = spectre_document_status (psdoc);
 
 	spectre_render_context_free (rc);
@@ -168,7 +168,7 @@ dvi_cairo_draw_ps (DviContext *dvi,
 		g_warning ("Error rendering PS document %s: %s\n",
 			   filename, spectre_status_to_string (status));
 		free (data);
-		
+
 		return;
 	}
 
@@ -182,7 +182,7 @@ dvi_cairo_draw_ps (DviContext *dvi,
 	cairo_translate (cairo_device->cr,
 			 x + cairo_device->xmargin,
 			 y + cairo_device->ymargin);
-	cairo_set_source_surface (cairo_device->cr, image, 0, 0); 
+	cairo_set_source_surface (cairo_device->cr, image, 0, 0);
 	cairo_paint (cairo_device->cr);
 
 	cairo_restore (cairo_device->cr);
@@ -202,26 +202,27 @@ dvi_cairo_alloc_colors (void  *device_data,
 			int    density)
 {
 	double  frac;
-	GdkColor color, color_fg;
+	GdkRGBA color, color_fg;
 	int     i, n;
 	unsigned int alpha;
 
-	color_fg.red = (fg >> 16) & 0xff;
-	color_fg.green = (fg >> 8) & 0xff;
-	color_fg.blue = (fg >> 0) & 0xff;
+	color_fg.red = ((fg >> 16) & 0xff) / 255.;
+	color_fg.green = ((fg >> 8) & 0xff) / 255.;
+	color_fg.blue = ((fg >> 0) & 0xff) / 255.;
 
 	n = npixels - 1;
 	for (i = 0; i < npixels; i++) {
 		frac = (gamma > 0) ?
 			pow ((double)i / n, 1 / gamma) :
 			1 - pow ((double)(n - i) / n, -gamma);
-		
+
 		color.red = frac * color_fg.red;
 		color.green = frac * color_fg.green;
 		color.blue = frac * color_fg.blue;
 		alpha = frac * 0xFF;
 
-		pixels[i] = (alpha << 24) + (color.red << 16) + (color.green << 8) + color.blue;
+		pixels[i] = (alpha << 24) + ((uint8_t)(color.red * 255) << 16) +
+			((uint8_t)(color.green * 255) << 8) + (uint8_t)(color.blue * 255);
 	}
 
 	return npixels;

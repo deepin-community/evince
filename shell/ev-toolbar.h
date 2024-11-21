@@ -18,8 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef __EV_TOOLBAR_H__
-#define __EV_TOOLBAR_H__
+#pragma once
 
 #include <gtk/gtk.h>
 #include "ev-window.h"
@@ -43,22 +42,20 @@ typedef struct _EvToolbar        EvToolbar;
 typedef struct _EvToolbarClass   EvToolbarClass;
 
 struct _EvToolbar {
-        HdyHeaderBar base_instance;
+        GtkBin base_instance;
 };
 
 struct _EvToolbarClass {
-        HdyHeaderBarClass base_class;
+        GtkBinClass base_class;
 };
 
 GType         ev_toolbar_get_type           (void);
 GtkWidget    *ev_toolbar_new                (EvWindow *window);
-gboolean      ev_toolbar_has_visible_popups (EvToolbar *ev_toolbar);
 void          ev_toolbar_action_menu_toggle (EvToolbar *ev_toolbar);
 GtkWidget    *ev_toolbar_get_page_selector  (EvToolbar *ev_toolbar);
+HdyHeaderBar *ev_toolbar_get_header_bar     (EvToolbar *ev_toolbar);
 void          ev_toolbar_set_mode           (EvToolbar     *ev_toolbar,
 					     EvToolbarMode  mode);
 EvToolbarMode ev_toolbar_get_mode           (EvToolbar     *ev_toolbar);
 
 G_END_DECLS
-
-#endif /* __EV_TOOLBAR_H__ */

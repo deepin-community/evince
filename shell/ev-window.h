@@ -21,8 +21,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef EV_WINDOW_H
-#define EV_WINDOW_H
+#pragma once
 
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -90,20 +89,15 @@ void		ev_window_print_range                    (EvWindow       *ev_window,
                                                           int             first_page,
                                                           int		 last_page);
 const gchar    *ev_window_get_dbus_object_path           (EvWindow       *ev_window);
-GMenuModel     *ev_window_get_bookmarks_menu             (EvWindow       *ev_window);
-EvHistory      *ev_window_get_history                    (EvWindow       *ev_window);
 EvDocumentModel *ev_window_get_document_model            (EvWindow       *ev_window);
 void            ev_window_focus_view                     (EvWindow       *ev_window);
-GtkWidget      *ev_window_get_toolbar			 (EvWindow	 *ev_window);
+HdyHeaderBar   *ev_window_get_toolbar                    (EvWindow       *ev_window);
 void            ev_window_handle_annot_popup             (EvWindow       *ev_window,
                                                           EvAnnotation   *annot);
 EvMetadata     *ev_window_get_metadata			 (EvWindow	 *ev_window);
 gint            ev_window_get_metadata_sidebar_size      (EvWindow       *ev_window);
-GtkWidget      *ev_window_get_sidebar			 (EvWindow	 *ev_window);
-GtkWidget      *ev_window_get_find_sidebar		 (EvWindow	 *ev_window);
 void            ev_window_set_divider_position		 (EvWindow	 *ev_window,
 							  gint		  sidebar_width);
+void            ev_window_start_page_selector_search     (EvWindow       *window);
 
 G_END_DECLS
-
-#endif /* !EV_WINDOW_H */
