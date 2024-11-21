@@ -2381,35 +2381,6 @@ set_filenames (EvWindow *ev_window, GFile *f)
 		priv->edit_name = g_file_get_basename (f);
 }
 
-static void
-open_uri_check_local_cb (GObject      *object,
-                         GAsyncResult *res,
-                         gpointer      user_data)
-{
-	EvWindow *ev_window = user_data;
-	EvWindowPrivate *priv = GET_PRIVATE (ev_window);
-	GFile *source_file = G_FILE (object);
-	g_autoptr (GFileInputStream) source_stream = NULL;
-	GSeekable *seekable;
-
-	source_stream = g_file_read_finish (source_file, res, NULL);
-	seekable = G_SEEKABLE (source_stream);
-
-	/* PDF backend needs support to seek pdf file from the end, i.e. G_SEEK_END support,
-	 * but there are some GVFSD-FUSE filesystems (like dav(s)://) that advertise
-	 * can-seek:TRUE while they don't support seeking from G_SEEK_END, so we need to
-	 * actually check that with a g_seekable_seek() call. See issue #2037
-	 */
-	if (source_stream && (!g_seekable_can_seek (seekable) ||
-	    !g_seekable_seek (seekable, 0, G_SEEK_END, NULL, NULL))) {
-		ev_window_load_file_remote (ev_window, source_file);
-	} else {
-		ev_window_show_loading_message (ev_window);
-		g_object_unref (source_file);
-		ev_job_scheduler_push_job (priv->load_job, EV_JOB_PRIORITY_NONE);
-	}
-}
-
 void
 ev_window_open_uri (EvWindow       *ev_window,
 		    const char     *uri,
@@ -2483,12 +2454,9 @@ ev_window_open_uri (EvWindow       *ev_window,
 	if (path == NULL && !priv->local_uri) {
 		ev_window_load_file_remote (ev_window, source_file);
 	} else {
-		/* source_file is probably local, but make sure it's seekable
-		 * before loading it directly.
-		 */
-		g_file_read_async (source_file,
-				   G_PRIORITY_DEFAULT, NULL,
-				   open_uri_check_local_cb, ev_window);
+		ev_window_show_loading_message (ev_window);
+		g_object_unref (source_file);
+		ev_job_scheduler_push_job (priv->load_job, EV_JOB_PRIORITY_NONE);
 	}
 }
 
@@ -4258,7 +4226,7 @@ ev_window_cmd_about (GSimpleAction *action,
         gtk_show_about_dialog (GTK_WINDOW (ev_window),
                                "name", _("Evince"),
                                "version", VERSION,
-                               "copyright", _("© 1996–2023 The Evince document viewer authors"),
+                               "copyright", _("© 1996–2022 The Evince document viewer authors"),
                                "license-type", GTK_LICENSE_GPL_2_0,
                                "website", "https://wiki.gnome.org/Apps/Evince",
                                "comments", _("Evince is a simple document viewer for GNOME"),
@@ -4669,7 +4637,6 @@ ev_window_run_fullscreen (EvWindow *window)
 {
 	EvWindowPrivate *priv = GET_PRIVATE (window);
 	gboolean fullscreen_window = TRUE;
-	gboolean maximized = FALSE;
 
 	if (ev_document_model_get_fullscreen (priv->model))
 		return;
@@ -4690,11 +4657,8 @@ ev_window_run_fullscreen (EvWindow *window)
 		gtk_window_fullscreen (GTK_WINDOW (window));
 	gtk_widget_grab_focus (priv->view);
 
-	if (priv->metadata && !ev_window_is_empty (window)) {
-		ev_metadata_get_boolean (priv->metadata, "window_maximized", &maximized);
-		if (!maximized)
-			ev_metadata_set_boolean (priv->metadata, "fullscreen", TRUE);
-	}
+	if (priv->metadata && !ev_window_is_empty (window))
+		ev_metadata_set_boolean (priv->metadata, "fullscreen", TRUE);
 }
 
 static void

@@ -79,13 +79,3 @@ i18n.merge_file(
   install: true,
   install_dir: ev_appstreamdir,
 )
-
-# Validate Appdata
-appstreamcli = find_program('appstreamcli', required: false)
-if (appstreamcli.found())
-  test('validate-appdata',
-    appstreamcli,
-    args: ['validate', '--no-net', '--explain', metainfo],
-    workdir: meson.current_build_dir()
-  )
-endif

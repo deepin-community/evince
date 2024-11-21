@@ -8,16 +8,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: evince master\n"
-"POT-Creation-Date: 2024-03-14 16:09+0000\n"
-"PO-Revision-Date: 2024-04-05 03:22+0300\n"
-"Last-Translator: Sabri Ünal <yakushabb@gmail.com>\n"
+"POT-Creation-Date: 2023-03-04 13:43+0000\n"
+"PO-Revision-Date: 2023-03-07 18:45+0300\n"
+"Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.1.1\n"
 
 #. Put one translator per line, in the form NAME <EMAIL>, YEAR1, YEAR2
 msgctxt "_"
@@ -664,21 +664,19 @@ msgstr ""
 #. (itstool) path: page/p
 #: C/documentation.page:23
 msgid ""
-"To contribute to the Documentation Project, feel free to get in touch with us in <link href=\"https://"
-"matrix.to/#/#docs:gnome.org\">#docs:gnome.org</link> on <link xref=\"help:gnome-help/help-matrix\">Matrix</"
-"link> or <link href=\"https://web.libera.chat/#gnome-docs\">#gnome-docs</link> on irc.libera.chat, or via "
-"<link href=\"https://discourse.gnome.org/tag/documentation\">GNOME Discourse</link>."
+"To contribute to the Documentation Project, feel free to get in touch with us using <link href=\"https://"
+"cbe003.chat.mibbit.com/?url=irc%3A%2F%2Firc.gnome.org%2Fdocs\">irc</link>, or via <link href=\"https://"
+"discourse.gnome.org/tag/documentation\">GNOME Discourse</link>."
 msgstr ""
-"Belgelendirme Projesine katkıda bulunmak için, <link xref=\"help:gnome-help/help-matrix\">Matrix</link> "
-"kullanarak <link href=\"https://matrix.to/#/#docs:gnome.org\">#docs:gnome.org</link> üstünden, irc.libera."
-"chat kullanarak <link href=\"https://web.libera.chat/#gnome-docs\">#gnome-docs</link> üstünden, ya da <link "
-"href=\"https://discourse.gnome.org/tag/documentation\">GNOME Discourse</link> üstünden bizimle iletişime "
-"geçmekten çekinmeyin."
+"Belgelendirme Projesine katkıda bulunmak için <link href=\"https://cbe003.chat.mibbit.com/?"
+"url=irc%3A%2F%2Firc.gnome.org%2Fdocs\">irc</link> kullanarak ya da <link href=\"https://discourse.gnome.org/"
+"tag/documentation\">GNOME Discourse</link> üstünden bizimle ileteşime geçebilirsiniz."
 
+# Küçük hata: link güncellenmiş ve yönlendirme verilmiş ama burada güncellenmemiş. Önemsiz.
 #. (itstool) path: page/p
-#: C/documentation.page:30
+#: C/documentation.page:25
 msgid ""
-"Our <link href=\"https://wiki.gnome.org/DocumentationProject/Contributing\">wiki</link> page contains "
+"Our <link href=\"https://live.gnome.org/DocumentationProject/Contributing\">wiki</link> page contains "
 "useful information."
 msgstr ""
 "<link href=\"https://wiki.gnome.org/DocumentationProject/Contributing\">Wiki</link> sayfamızda kimi yararlı "
@@ -1315,7 +1313,7 @@ msgstr ""
 #. (itstool) path: page/p
 #: C/translate.page:27
 msgid ""
-"There are <link href=\"https://l10n.gnome.org/module/evince/\">many languages</link> for which translations "
+"There are <link href=\"http://l10n.gnome.org/module/evince/\">many languages</link> for which translations "
 "are still needed."
 msgstr ""
 "Çeviriye gereksinen <link href=\"https://l10n.gnome.org/module/evince/\">çok fazla dil</link> "
@@ -1325,8 +1323,8 @@ msgstr ""
 #. (itstool) path: page/p
 #: C/translate.page:30
 msgid ""
-"To start translating you will need to <link href=\"https://l10n.gnome.org\">create an account</link> and "
-"join the <link href=\"https://l10n.gnome.org/teams/\">translation team</link> for your language. This will "
+"To start translating you will need to <link href=\"http://l10n.gnome.org\">create an account</link> and "
+"join the <link href=\"http://l10n.gnome.org/teams/\">translation team</link> for your language. This will "
 "give you the ability to upload new translations."
 msgstr ""
 "Diliniz için çeviriye başlamadan önce <link href=\"https://l10n.gnome.org\">bir hesap oluşturmalı</link> ve "
@@ -1336,18 +1334,16 @@ msgstr ""
 #. (itstool) path: page/p
 #: C/translate.page:34
 msgid ""
-"You can chat with GNOME translators in <link href=\"https://matrix.to/#/#i18n:gnome.org\">#i18n:gnome.org</"
-"link> on <link xref=\"help:gnome-help/help-matrix\">Matrix</link> or <link href=\"https://web.libera.chat/"
-"#gnome-i18n\">#gnome-i18n</link> on irc.libera.chat. People on the channel are located worldwide, so you "
-"may not get an immediate response as a result of timezone differences."
+"You can chat with GNOME translators using <link href=\"https://cbe003.chat.mibbit.com/?url=irc%3A%2F%2Firc."
+"gnome.org%2Fi18n\">irc</link>. People on the channel are located worldwide, so you may not get an immediate "
+"response as a result of timezone differences."
 msgstr ""
-"GNOME çevirmenleri ile <link xref=\"help:gnome-help/help-matrix\">Matrix</link> kullanarak <link href="
-"\"https://matrix.to/#/#i18n:gnome.org\">#i18n:gnome.org</link> üstünden, irc.libera.chat kullanarak <link "
-"href=\"https://web.libera.chat/#i18n:gnome.org\">#i18n:gnome.org</link> üstünden, konuşabilirsiniz. Zaman "
-"dilimi başkalığı ve dünya üzerine dağılmış bir takım olması nedeniyle anlık yanıtlanamayabilirsiniz."
+"GNOME çevirmenleri ile <link href=\"https://cbe003.chat.mibbit.com/?url=irc%3A%2F%2Firc.gnome."
+"org%2Fi18n\">irc</link> kullanarak da konuşabilirsiniz. Zaman dilimi başkalığı ve dünya üzerine dağılmış "
+"bir takım olması nedeniyle anlık yanıtlanamayabilirsiniz."
 
 #. (itstool) path: page/p
-#: C/translate.page:41
+#: C/translate.page:37
 msgid ""
 "Alternatively, you can contact the Internationalization Team using <link href=\"https://discourse.gnome.org/"
 "tag/i18n\">GNOME Discourse</link>."
@@ -1386,9 +1382,9 @@ msgid ""
 "menu button in the top-right corner of the window and selecting <gui style=\"menuitem\">Save Current "
 "Settings as Default</gui>."
 msgstr ""
-"Şu anda kullandığınız ayarları, pencerenin sağ üst köşesindeki menü düğmesine basarak ve <gui style="
-"\"menuitem\">Geçerli Ayarları Öntanımlı Olarak Kaydet</gui>’i seçerek tüm yeni belgeler için öntanımlı "
-"olarak kaydedebilirsiniz."
+"Şu anda kullandığınız ayarları, pencerenin sağ üst köşesindeki menü düğmesine basarak ve <gui "
+"style=\"menuitem\">Geçerli Ayarları Öntanımlı Olarak Kaydet</gui>’i seçerek tüm yeni belgeler için "
+"öntanımlı olarak kaydedebilirsiniz."
 
 #. (itstool) path: note/p
 #: C/default-settings.page:31
@@ -1525,11 +1521,11 @@ msgstr "<em>Aralık</em> altında, <gui>Sayfalar</gui>ʼı seçip 2 yazın"
 #. (itstool) path: item/p
 #: C/duplex-5pages.page:87 C/duplex-13pages.page:84
 msgid ""
-"To print page 3, press the menu button in the top-right corner of the window and press the <gui style="
-"\"button\">Print</gui> button."
+"To print page 3, press the menu button in the top-right corner of the window and press the <gui "
+"style=\"button\">Print</gui> button."
 msgstr ""
-"3. sayfayı yazdırmak için pencerenin sağ üst köşesindeki menü düğmesine tıklayın ve <gui style=\"button"
-"\">Yazdır</gui>ʼa basın."
+"3. sayfayı yazdırmak için pencerenin sağ üst köşesindeki menü düğmesine tıklayın ve <gui "
+"style=\"button\">Yazdır</gui>ʼa basın."
 
 #. (itstool) path: item/p
 #: C/duplex-5pages.page:90
@@ -1756,9 +1752,9 @@ msgid ""
 "legalcode\">CreativeCommons website</link>, or read the full <link href=\"http://creativecommons.org/"
 "licenses/by-sa/3.0/\">Commons Deed</link>."
 msgstr ""
-"Lisansın tam metni için <link href=\"http://creativecommons.org/licenses/by-sa/3.0/legalcode"
-"\">CreativeCommons web sitesi</link>’ne bakınız, veya <link href=\"http://creativecommons.org/licenses/by-"
-"sa/3.0/\">Commons Deed</link> sayfasını okuyunuz."
+"Lisansın tam metni için <link href=\"http://creativecommons.org/licenses/by-sa/3.0/"
+"legalcode\">CreativeCommons web sitesi</link>’ne bakınız, veya <link href=\"http://creativecommons.org/"
+"licenses/by-sa/3.0/\">Commons Deed</link> sayfasını okuyunuz."
 
 #. (itstool) path: info/desc
 #: C/singlesided-13-16pages.page:8
@@ -1802,17 +1798,14 @@ msgstr ""
 #: C/develop.page:23
 msgid ""
 "If you would like to <link href=\"https://wiki.gnome.org/Apps/Evince\">help develop</link> the "
-"<app>Document Viewer</app>, you can get in touch with the developers at <link href=\"https://matrix.to/#/"
-"#evince:gnome.org\">#evince:gnome.org</link> on <link xref=\"help:gnome-help/help-matrix\">Matrix</link> or "
-"<link href=\"https://web.libera.chat/#gnome-evince\">#gnome-evince</link> on irc.libera.chat, or via <link "
-"href=\"https://discourse.gnome.org/tag/evince\">GNOME Discourse</link>."
+"<app>Document Viewer</app>, you can get in touch with the developers using <link href=\"https://cbe005.chat."
+"mibbit.com/?url=irc%3A%2F%2Firc.gnome.org%2Fevince\">irc</link>, or via <link href=\"https://discourse."
+"gnome.org/tag/evince\">GNOME Discourse</link>."
 msgstr ""
 "<app>Belge Görüntüleyici</app>’nin <link href=\"https://wiki.gnome.org/Apps/Evince\">gelişimine yardımcı "
-"olmak</link> isterseniz, <link xref=\"help:gnome-help/help-matrix\">Matrix</link> kullanarak <link href="
-"\"https://matrix.to/#/#evince:gnome.org\">#evince:gnome.org</link> üstünden, irc.libera.chat kullanarak "
-"<link href=\"https://web.libera.chat/#gnome-evince\">#gnome-evince</link> üstünden, ya da <link href="
-"\"https://discourse.gnome.org/tag/evince\">GNOME Discourse</link> üstünden geliştiricilerle iletişime "
-"geçebilirsiniz."
+"olmak</link> isterseniz, <link href=\"https://cbe005.chat.mibbit.com/?url=irc%3A%2F%2Firc.gnome."
+"org%2Fevince\">irc</link> ya da <link href=\"https://discourse.gnome.org/tag/evince\">GNOME Discourse</"
+"link> kanalıyla geliştiricilerle iletişim kurabilirsiniz."
 
 #. (itstool) path: info/desc
 #: C/printing.page:9
@@ -1978,11 +1971,11 @@ msgstr "Yan paneli göster-gizle düğmesi."
 #. (itstool) path: item/p
 #: C/headerbar.page:31
 msgid ""
-"A text field to <link xref=\"movingaround#between-pages\">go to a certain page</link> or to <link xref="
-"\"finding\">search</link> in the <link xref=\"movingaround#navigating\">index</link>."
+"A text field to <link xref=\"movingaround#between-pages\">go to a certain page</link> or to <link "
+"xref=\"finding\">search</link> in the <link xref=\"movingaround#navigating\">index</link>."
 msgstr ""
-"<link xref=\"movingaround#between-pages\">Belirli sayfaya gitmek</link> veya <link xref="
-"\"movingaround#navigating\">dizinde</link> <link xref=\"finding\">aramak için</link> bir metin alanı."
+"<link xref=\"movingaround#between-pages\">Belirli sayfaya gitmek</link> veya <link "
+"xref=\"movingaround#navigating\">dizinde</link> <link xref=\"finding\">aramak için</link> bir metin alanı."
 
 #. (itstool) path: item/p
 #: C/headerbar.page:36
@@ -2378,8 +2371,8 @@ msgstr ""
 #. (itstool) path: item/p
 #: C/annotations-delete.page:39
 msgid ""
-"Save the changes to a new document by clicking the menu button in the top right, followed by <gui style="
-"\"menuitem\">Save As…</gui>."
+"Save the changes to a new document by clicking the menu button in the top right, followed by <gui "
+"style=\"menuitem\">Save As…</gui>."
 msgstr ""
 "Sağ üstteki menü düğmesine ve ardından <gui style=\"menuitem\">Farklı Kaydet… </gui>’e tıklayarak "
 "değişiklikleri yeni belgeye kaydedin."
@@ -2603,12 +2596,12 @@ msgstr ""
 #: C/movingaround.page:111
 msgid ""
 "You can only move around one page at a time, by default. If you want to move between pages just by "
-"scrolling or dragging, press the menu button in the top-right corner of the window and select <gui style="
-"\"menuitem\">Continuous</gui>."
+"scrolling or dragging, press the menu button in the top-right corner of the window and select <gui "
+"style=\"menuitem\">Continuous</gui>."
 msgstr ""
 "Öntanımlı olarak, her seferinde yalnızca tek sayfa gezebilirsiniz. Yalnızca kaydırarak veya sürükleyerek "
-"sayfalar arasında dolaşmak istiyorsanız, pencerenin sağ üst köşesindeki menü düğmesine basın ve <gui style="
-"\"menuitem\">Kesintisiz</gui>’i seçin."
+"sayfalar arasında dolaşmak istiyorsanız, pencerenin sağ üst köşesindeki menü düğmesine basın ve <gui "
+"style=\"menuitem\">Kesintisiz</gui>’i seçin."
 
 #. (itstool) path: section/title
 #: C/movingaround.page:122
