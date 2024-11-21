@@ -1,4 +1,3 @@
-/* -*- Mode: C++; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8; c-indent-level: 8 -*- */
 /* this file is part of evince, a gnome document viewer
  *
  * Copyright (C) 2018, Evangelos Rigas <erigas@rnd2.org>
@@ -31,6 +30,7 @@
 #include <poppler.h>
 #include <poppler-document.h>
 #include <poppler-page.h>
+#include <poppler-features.h>
 #ifdef HAVE_CAIRO_PDF
 #include <cairo-pdf.h>
 #endif
@@ -63,48 +63,9 @@
 #include "ev-media.h"
 #include "ev-file-helpers.h"
 
-#include <libxml/tree.h>
-#include <libxml/parser.h>
-#include <libxml/xpath.h>
-#include <libxml/xpathInternals.h>
-
 #if (defined (HAVE_CAIRO_PDF) || defined (HAVE_CAIRO_PS))
 #define HAVE_CAIRO_PRINT
 #endif
-
-/* Fields for checking the license info suggested by Creative Commons 
- * Main reference: http://wiki.creativecommons.org/XMP */
-
-/* fields from the XMP Rights Management Schema, XMP Specification Sept 2005, pag. 42 */
-#define LICENSE_MARKED "/rdf:RDF/rdf:Description/xmpRights:Marked"
-#define LICENSE_TEXT "/x:xmpmeta/rdf:RDF/rdf:Description/xmpRights:UsageTerms/rdf:Alt/rdf:li[lang('%s')]"
-#define LICENSE_WEB_STATEMENT "/rdf:RDF/rdf:Description/xmpRights:WebStatement"
-/* license field from Creative Commons schema, http://creativecommons.org/ns */
-#define LICENSE_URI "/rdf:RDF/rdf:Description/cc:license/@rdf:resource"
-
-/* alternative field from the Dublic Core Schema for checking the informal rights statement 
- * as suggested by the Creative Commons template [1]. This field has been replaced or 
- * complemented by its XMP counterpart [2].
- * References: 
- *    [1] http://wiki.creativecommons.org/XMP_help_for_Adobe_applications 
- *    [2] http://code.creativecommons.org/issues/issue505 */
-#define LICENSE_TEXT_ALT "/x:xmpmeta/rdf:RDF/rdf:Description/dc:rights/rdf:Alt/rdf:li[lang('%s')]"
-#define GET_LICENSE_TEXT(a) ( (a < 1) ? LICENSE_TEXT : LICENSE_TEXT_ALT )
-
-/* fields for authors and keywords */
-#define AUTHORS "/rdf:RDF/rdf:Description/dc:creator/rdf:Seq/rdf:li"
-#define KEYWORDS "/rdf:RDF/rdf:Description/dc:subject/rdf:Bag/rdf:li"
-/* fields for title and subject */
-#define TITLE "/rdf:RDF/rdf:Description/dc:title/rdf:Alt/rdf:li[lang('%s')]"
-#define SUBJECT "/rdf:RDF/rdf:Description/dc:description/rdf:Alt/rdf:li[lang('%s')]"
-/* fields for creation and modification dates */
-#define MOD_DATE "/rdf:RDF/rdf:Description/xmp:ModifyDate"
-#define CREATE_DATE "/rdf:RDF/rdf:Description/xmp:CreateDate"
-#define META_DATE "/rdf:RDF/rdf:Description/xmp:MetadataDate"
-/* fields for pdf creator tool and producer */
-#define CREATOR "/rdf:RDF/rdf:Description/xmp:CreatorTool"
-#define PRODUCER "/rdf:RDF/rdf:Description/pdf:Producer"
-
 
 typedef struct {
 	EvFileExporterFormat format;
@@ -224,17 +185,9 @@ pdf_document_dispose (GObject *object)
 		pdf_document->annots = NULL;
 	}
 
-	if (pdf_document->document) {
-		g_object_unref (pdf_document->document);
-	}
-
-	if (pdf_document->font_info) {
-		poppler_font_info_free (pdf_document->font_info);
-	}
-
-	if (pdf_document->fonts_iter) {
-		poppler_fonts_iter_free (pdf_document->fonts_iter);
-	}
+        g_clear_object (&pdf_document->document);
+        g_clear_pointer (&pdf_document->font_info, poppler_font_info_free);
+        g_clear_pointer (&pdf_document->fonts_iter, poppler_fonts_iter_free);
 
 	G_OBJECT_CLASS (pdf_document_parent_class)->dispose (object);
 }
@@ -353,6 +306,30 @@ pdf_document_load_gfile (EvDocument          *document,
                                                  pdf_document->password,
                                                  cancellable,
                                                  &err);
+
+        if (pdf_document->document == NULL) {
+                convert_error (err, error);
+                return FALSE;
+        }
+
+        return TRUE;
+}
+
+static gboolean
+pdf_document_load_fd (EvDocument          *document,
+                      int                  fd,
+                      EvDocumentLoadFlags  flags,
+                      GCancellable        *cancellable,
+                      GError             **error)
+{
+        GError *err = NULL;
+        PdfDocument *pdf_document = PDF_DOCUMENT (document);
+
+        /* Note: this consumes @fd */
+        pdf_document->document =
+                poppler_document_new_from_fd (fd,
+                                              pdf_document->password,
+                                              &err);
 
         if (pdf_document->document == NULL) {
                 convert_error (err, error);
@@ -586,446 +563,6 @@ pdf_document_get_thumbnail_surface (EvDocument      *document,
 	return surface;
 }
 
-static xmlChar *
-pdf_document_get_xmptag_from_path (xmlXPathContextPtr xpathCtx,
-                                   const char* xpath)
-{
-	xmlXPathObjectPtr xpathObj;
-	char *xmpmetapath = g_strdup_printf ("%s%s", "/x:xmpmeta", xpath);
-	xmlChar *result = NULL;
-
-	/* add pdf/a and pdf/x namespaces */
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "x", BAD_CAST "adobe:ns:meta/");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "rdf", BAD_CAST "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "pdfaid", BAD_CAST "http://www.aiim.org/pdfa/ns/id/");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "pdfxid", BAD_CAST "http://www.npes.org/pdfx/ns/id/");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "pdfx", BAD_CAST "http://ns.adobe.com/pdfx/1.3/");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "pdf", BAD_CAST "http://ns.adobe.com/pdf/1.3/");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "xmp", BAD_CAST "http://ns.adobe.com/xap/1.0/");
-	/* XMP Rights Management Schema */
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "xmpRights", BAD_CAST "http://ns.adobe.com/xap/1.0/rights/");
-	/* Creative Commons Schema */
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "cc", BAD_CAST "http://creativecommons.org/ns#");
-
-	/* Try in /rdf:RDF/ */
-	xpathObj = xmlXPathEvalExpression (BAD_CAST xpath, xpathCtx);
-	if (xpathObj == NULL)
-			return NULL;
-
-	if (xpathObj->nodesetval != NULL && xpathObj->nodesetval->nodeNr != 0)
-			result = xmlNodeGetContent (xpathObj->nodesetval->nodeTab[0]);
-
-	xmlXPathFreeObject (xpathObj);
-
-	if (result != NULL)
-		return result;
-
-	/*
-	Try in /x:xmpmeta/ (xmpmeta is optional)
-	https://wwwimages2.adobe.com/content/dam/acom/en/devnet/xmp/pdfs/XMP SDK Release cc-2016-08/XMPSpecificationPart1.pdf (Section 7.3.3)
-	*/
-	xpathObj = xmlXPathEvalExpression (BAD_CAST xmpmetapath, xpathCtx);
-	if (xpathObj == NULL)
-			return NULL;
-
-	if (xpathObj->nodesetval != NULL && xpathObj->nodesetval->nodeNr != 0)
-			result = xmlNodeGetContent (xpathObj->nodesetval->nodeTab[0]);
-
-	xmlXPathFreeObject (xpathObj);
-	g_free (xmpmetapath);
-	return result;
-}
-
-/* reference:
-http://www.pdfa.org/lib/exe/fetch.php?id=pdfa%3Aen%3Atechdoc&cache=cache&media=pdfa:techdoc:tn0001_pdfa-1_and_namespaces_2008-03-18.pdf */
-static char *
-pdf_document_get_format_from_metadata (xmlXPathContextPtr xpathCtx)
-{
-	xmlChar *part = NULL;
-	xmlChar *conf = NULL;
-	xmlChar *pdfxid = NULL;
-	char *result = NULL;
-	int i;
-
-	/* reads pdf/a part */
-	/* first syntax: child node */
-	part = pdf_document_get_xmptag_from_path (xpathCtx, "/rdf:RDF/rdf:Description/pdfaid:part");
-	if (part == NULL) {
-		/* second syntax: attribute */
-		part = pdf_document_get_xmptag_from_path (xpathCtx, "/rdf:RDF/rdf:Description/@pdfaid:part");
-	}
-
-	/* reads pdf/a conformance */
-	/* first syntax: child node */
-	conf =  pdf_document_get_xmptag_from_path (xpathCtx, "/rdf:RDF/rdf:Description/pdfaid:conformance");
-	if (conf == NULL) {
-		/* second syntax: attribute */
-		conf =  pdf_document_get_xmptag_from_path (xpathCtx, "/rdf:RDF/rdf:Description/@pdfaid:conformance");
-	}
-
-	/* reads pdf/x id  */
-	/* first syntax: pdfxid */
-	pdfxid = pdf_document_get_xmptag_from_path (xpathCtx, "/rdf:RDF/rdf:Description/pdfxid:GTS_PDFXVersion");
-	if (pdfxid == NULL) {
-		/* second syntax: pdfx */
-		pdfxid = pdf_document_get_xmptag_from_path (xpathCtx, "/rdf:RDF/rdf:Description/pdfx:GTS_PDFXVersion");
-	}
-
-	if (part != NULL && conf != NULL) {
-		/* makes conf lowercase */
-		for (i = 0; conf[i]; i++)
-			conf[i] = g_ascii_tolower (conf[i]);
-
-		/* return buffer */
-		result = g_strdup_printf ("PDF/A - %s%s", part, conf);
-	}
-	else if (pdfxid != NULL) {
-		result = g_strdup_printf ("%s", pdfxid);
-	}
-
-	/* Cleanup */
-	xmlFree (part);
-	xmlFree (conf);
-	xmlFree (pdfxid);
-	return result;
-}
-
-static char *
-pdf_document_get_lists_from_dc_tags (xmlXPathContextPtr xpathCtx,
-                                     const char* xpath)
-{
-	xmlXPathObjectPtr xpathObj;
-	int i;
-	char* elements = NULL;
-	char* tmp_elements = NULL;
-	char* result = NULL;
-	xmlChar* content;
-
-	/* add xmp namespaces */
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "x", BAD_CAST "adobe:ns:meta/");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "rdf", BAD_CAST "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "dc", BAD_CAST "http://purl.org/dc/elements/1.1/");
-
-	/* reads pdf/a sequence*/
-	xpathObj = xmlXPathEvalExpression (BAD_CAST xpath, xpathCtx);
-	if (xpathObj == NULL)
-            return NULL;
-
-	if (xpathObj->nodesetval != NULL && xpathObj->nodesetval->nodeNr != 0) {
-		for (i = 0; i < xpathObj->nodesetval->nodeNr; i++) {
-			content = xmlNodeGetContent (xpathObj->nodesetval->nodeTab[i]);
-			if (i) {
-				tmp_elements = g_strdup (elements);
-				g_free (elements);
-				elements = g_strdup_printf ("%s, %s", tmp_elements, content);
-				g_free (tmp_elements);
-			} else {
-				elements = g_strdup_printf ("%s", content);
-			}
-			xmlFree(content);
-		}
-	}
-	xmlXPathFreeObject (xpathObj);
-
-
-	if (elements != NULL) {
-		/* return buffer */
-		result = g_strdup (elements);
-	}
-
-	/* Cleanup */
-	g_free (elements);
-
-	return result;
-}
-
-static char *
-pdf_document_get_author_from_metadata (xmlXPathContextPtr xpathCtx)
-{
-	char* result = NULL;
-	char* xmpmetapath = g_strdup_printf ("%s%s", "/x:xmpmeta", AUTHORS);
-	/* Try in /rdf:RDF/ */
-	result = pdf_document_get_lists_from_dc_tags (xpathCtx, AUTHORS);
-	if (result != NULL)
-		return result;
-
-	/* Try in /x:xmpmeta/ */
-	result = pdf_document_get_lists_from_dc_tags (xpathCtx, xmpmetapath);
-	g_free (xmpmetapath);
-
-	return result;
-}
-
-static char *
-pdf_document_get_keywords_from_metadata (xmlXPathContextPtr xpathCtx)
-{
-	char* result = NULL;
-	char* xmpmetapath = g_strdup_printf ("%s%s", "/x:xmpmeta", KEYWORDS);
-	/* Try in /rdf:RDF/ */
-	result = pdf_document_get_lists_from_dc_tags (xpathCtx, KEYWORDS);
-	if (result != NULL)
-		return result;
-
-	/* Try in /x:xmpmeta/ */
-	result = pdf_document_get_lists_from_dc_tags (xpathCtx, xmpmetapath);
-	g_free (xmpmetapath);
-
-	return result;
-}
-
-__attribute__((__format__ (__printf__, 2, 0)))
-static char *
-pdf_document_get_localized_object_from_metadata (xmlXPathContextPtr xpathCtx,
-                                                 const char* xpath)
-{
-	const char *language_string;
-	char  *aux;
-	gchar **tags;
-	gchar *tag, *tag_aux;
-	int i, j;
-	char *loc_object= NULL;
-
-	/* register namespaces */
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "x", BAD_CAST "adobe:ns:meta/");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "rdf", BAD_CAST "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "dc", BAD_CAST "http://purl.org/dc/elements/1.1/");
-	/* XMP Rights Management Schema */
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "xmpRights", BAD_CAST "http://ns.adobe.com/xap/1.0/rights/");
-	/* Creative Commons Schema */
-	xmlXPathRegisterNs (xpathCtx, BAD_CAST "cc", BAD_CAST "http://creativecommons.org/ns#");
-
-	/* 1) checking for a suitable localized string */
-	language_string = pango_language_to_string (gtk_get_default_language ());
-	tags = g_strsplit (language_string, "-", -1);
-	i = g_strv_length (tags);
-	while (i-- && !loc_object) {
-		tag = g_strdup (tags[0]);
-		for (j = 1; j <= i; j++) {
-			tag_aux = g_strdup_printf ("%s-%s", tag, tags[j]);
-			g_free (tag);
-			tag = tag_aux;
-		}
-		#pragma GCC diagnostic push
-		#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-		aux = g_strdup_printf (xpath, tag);
-		#pragma GCC diagnostic pop
-		loc_object = (gchar *)pdf_document_get_xmptag_from_path (xpathCtx, aux);
-		g_free (tag);
-		g_free (aux);
-	}
-	g_strfreev (tags);
-
-	/* 2) if not, use the default string */
-	if (!loc_object) {
-		#pragma GCC diagnostic push
-		#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-		aux = g_strdup_printf (xpath, "x-default");
-		#pragma GCC diagnostic pop
-		loc_object = (gchar *)pdf_document_get_xmptag_from_path (xpathCtx, aux);
-		g_free (aux);
-	}
-	return loc_object;
-}
-
-static char *
-pdf_document_get_title_from_metadata (xmlXPathContextPtr xpathCtx)
-{
-	return pdf_document_get_localized_object_from_metadata (xpathCtx, TITLE);
-}
-
-static char *
-pdf_document_get_subject_from_metadata (xmlXPathContextPtr xpathCtx)
-{
-	return pdf_document_get_localized_object_from_metadata (xpathCtx, SUBJECT);
-}
-
-static void
-pdf_document_get_dates_from_metadata (GTime *result, xmlXPathContextPtr xpathCtx)
-{
-	xmlChar *modifydate = NULL;
-	xmlChar *createdate = NULL;
-	xmlChar *metadate = NULL;
-	char    *datestr;
-	GTimeVal  tmp_time;
-
-	/* reads modify date */
-	modifydate = pdf_document_get_xmptag_from_path (xpathCtx, MOD_DATE);
-	/* reads pdf create date */
-	createdate = pdf_document_get_xmptag_from_path (xpathCtx, CREATE_DATE);
-	/* reads pdf metadata date */
-	metadate = pdf_document_get_xmptag_from_path (xpathCtx, META_DATE);
-
-	if (modifydate != NULL) {
-		/* return buffer */
-		datestr = g_strdup_printf ("%s", modifydate);
-		g_time_val_from_iso8601 (datestr, &tmp_time);
-		result[0] = (GTime)tmp_time.tv_sec;
-		g_free (datestr);
-	}
-
-	if (createdate != NULL) {
-		datestr = g_strdup_printf ("%s", createdate);
-		g_time_val_from_iso8601 (datestr, &tmp_time);
-		result[1] = (GTime)tmp_time.tv_sec;
-		g_free (datestr);
-	}
-
-	if (metadate != NULL) {
-		datestr = g_strdup_printf ("%s", metadate);
-		g_time_val_from_iso8601 (datestr, &tmp_time);
-		result[2] = (GTime)tmp_time.tv_sec;
-		g_free (datestr);
-	}
-
-	/* Cleanup */
-	xmlFree (modifydate);
-	xmlFree (createdate);
-	xmlFree (metadate);
-}
-
-static EvDocumentLicense *
-pdf_document_get_license_from_metadata (xmlXPathContextPtr xpathCtx)
-{
-	xmlChar *marked = NULL;
-	EvDocumentLicense *license;
-
-	/* checking if the document has been marked as defined on the XMP Rights
-	 * Management Schema */
-	marked =  pdf_document_get_xmptag_from_path (xpathCtx, LICENSE_MARKED);
-
-	/* a) Not marked => No XMP Rights information */
-	if (!marked) {
-		xmlFree (marked);
-		return NULL;
-	}
-
-	license = ev_document_license_new ();
-
-	/* b) Marked False => Public Domain, no copyrighted material and no
-	 * license needed */
-	if (g_strrstr ((char *) marked, "False") != NULL) {
-		license->text = g_strdup (_("This work is in the Public Domain"));
-	/* c) Marked True => Copyrighted material */
-	} else {
-		/* Checking usage terms as defined by the XMP Rights Management
-		 * Schema. This field is recomended to be checked by Creative
-		 * Commons */
-		/* 1) checking for a suitable localized string */
-		int lt;
-
-		for (lt = 0; !license->text && lt < 2; lt++)
-			license->text = pdf_document_get_localized_object_from_metadata (xpathCtx,
-											 GET_LICENSE_TEXT (lt));
-
-		/* Checking the license URI as defined by the Creative Commons
-		 * Schema. This field is recomended to be checked by Creative
-		 * Commons */
-		license->uri = (gchar *)pdf_document_get_xmptag_from_path (xpathCtx, LICENSE_URI);
-
-		/* Checking the web statement as defined by the XMP Rights
-		 * Management Schema. Checking it out is a sort of above-and-beyond
-		 * the basic recommendations by Creative Commons. It can be
-		 * considered as a "reinforcement" approach to add certainty. */
-		license->web_statement = (gchar *)pdf_document_get_xmptag_from_path (xpathCtx, LICENSE_WEB_STATEMENT);
-	}
-	xmlFree (marked);
-
-	if (!license->text && !license->uri && !license->web_statement) {
-		ev_document_license_free (license);
-		return NULL;
-	}
-
-	return license;
-}
-
-static void
-pdf_document_parse_metadata (const gchar    *metadata,
-			     EvDocumentInfo *info)
-{
-	xmlDocPtr          doc;
-	xmlXPathContextPtr xpathCtx;
-	gchar             *fmt;
-	gchar             *author;
-	gchar             *keywords;
-	gchar             *title;
-	gchar             *subject;
-	gchar             *creatortool;
-	gchar             *producer;
-	GTime              dates[3] = {0};
-
-	doc = xmlParseMemory (metadata, strlen (metadata));
-	if (doc == NULL)
-		return;		/* invalid xml metadata */
-
-	xpathCtx = xmlXPathNewContext (doc);
-	if (xpathCtx == NULL) {
-		xmlFreeDoc (doc);
-		return;		/* invalid xpath context */
-	}
-
-	pdf_document_get_dates_from_metadata (dates, xpathCtx);
-	/* From PDF spec, if the PDF modified date is newer than metadata date,
-	 * it indicates that the file was edited by a non-XMP aware software.
-	 * Then, the information dictionary is considered authoritative and the
-	 * XMP metadata should not be displayed. */
-	if (dates[2] >= info->modified_date) {
-
-		fmt = pdf_document_get_format_from_metadata (xpathCtx);
-		if (fmt != NULL) {
-			g_free (info->format);
-			info->format = fmt;
-		}
-
-		author = pdf_document_get_author_from_metadata (xpathCtx);
-		if (author != NULL) {
-			g_free (info->author);
-			info->author = author;
-		}
-
-		keywords = pdf_document_get_keywords_from_metadata (xpathCtx);
-		if (keywords != NULL) {
-			g_free (info->keywords);
-			info->keywords = keywords;
-		}
-
-		title = pdf_document_get_title_from_metadata (xpathCtx);
-		if (title != NULL) {
-			g_free (info->title);
-			info->title = title;
-		}
-
-		subject = pdf_document_get_subject_from_metadata (xpathCtx);
-		if (subject != NULL) {
-			g_free (info->subject);
-			info->subject = subject;
-		}
-
-		creatortool = (char*)pdf_document_get_xmptag_from_path (xpathCtx, CREATOR);
-		if (creatortool != NULL) {
-			g_free (info->creator);
-			info->creator = creatortool;
-		}
-
-		producer = (char*)pdf_document_get_xmptag_from_path (xpathCtx, PRODUCER);
-		if (producer != NULL) {
-			g_free (info->producer);
-			info->producer = producer;
-		}
-
-		if (dates[0] != 0)
-			info->modified_date = dates[0];
-
-		if (dates[1] != 0)
-			info->creation_date = dates[1];
-	}
-
-	info->license = pdf_document_get_license_from_metadata (xpathCtx);
-
-	xmlXPathFreeContext (xpathCtx);
-	xmlFreeDoc (doc);
-}
-
-
 static EvDocumentInfo *
 pdf_document_get_info (EvDocument *document)
 {
@@ -1036,28 +573,19 @@ pdf_document_get_info (EvDocument *document)
 	PopplerPermissions permissions;
 	char *metadata;
 	gboolean linearized;
+        GDateTime *created_datetime = NULL;
+        GDateTime *modified_datetime = NULL;
 
-	info = g_new0 (EvDocumentInfo, 1);
+	info = ev_document_info_new ();
 
-	info->fields_mask = EV_DOCUMENT_INFO_TITLE |
-			    EV_DOCUMENT_INFO_FORMAT |
-			    EV_DOCUMENT_INFO_AUTHOR |
-			    EV_DOCUMENT_INFO_SUBJECT |
-			    EV_DOCUMENT_INFO_KEYWORDS |
-			    EV_DOCUMENT_INFO_LAYOUT |
-			    EV_DOCUMENT_INFO_START_MODE |
-		            EV_DOCUMENT_INFO_PERMISSIONS |
-			    EV_DOCUMENT_INFO_UI_HINTS |
-			    EV_DOCUMENT_INFO_CREATOR |
-			    EV_DOCUMENT_INFO_PRODUCER |
-			    EV_DOCUMENT_INFO_CREATION_DATE |
-			    EV_DOCUMENT_INFO_MOD_DATE |
-			    EV_DOCUMENT_INFO_LINEARIZED |
-			    EV_DOCUMENT_INFO_N_PAGES |
-			    EV_DOCUMENT_INFO_SECURITY |
-		            EV_DOCUMENT_INFO_PAPER_SIZE |
-			    EV_DOCUMENT_INFO_CONTAINS_JS |
-			    EV_DOCUMENT_INFO_LICENSE;
+	info->fields_mask |= EV_DOCUMENT_INFO_LAYOUT |
+			     EV_DOCUMENT_INFO_START_MODE |
+		             EV_DOCUMENT_INFO_PERMISSIONS |
+			     EV_DOCUMENT_INFO_UI_HINTS |
+			     EV_DOCUMENT_INFO_LINEARIZED |
+			     EV_DOCUMENT_INFO_N_PAGES |
+			     EV_DOCUMENT_INFO_SECURITY |
+		             EV_DOCUMENT_INFO_PAPER_SIZE;
 
 	g_object_get (PDF_DOCUMENT (document)->document,
 		      "title", &(info->title),
@@ -1071,14 +599,32 @@ pdf_document_get_info (EvDocument *document)
 		      "permissions", &permissions,
 		      "creator", &(info->creator),
 		      "producer", &(info->producer),
-		      "creation-date", &(info->creation_date),
-		      "mod-date", &(info->modified_date),
+		      "creation-datetime", &created_datetime,
+		      "mod-datetime", &modified_datetime,
 		      "linearized", &linearized,
 		      "metadata", &metadata,
 		      NULL);
 
+        if (info->title)
+                info->fields_mask |= EV_DOCUMENT_INFO_TITLE;
+        if (info->format)
+                info->fields_mask |= EV_DOCUMENT_INFO_FORMAT;
+        if (info->author)
+                info->fields_mask |= EV_DOCUMENT_INFO_AUTHOR;
+        if (info->subject)
+                info->fields_mask |= EV_DOCUMENT_INFO_SUBJECT;
+        if (info->keywords)
+                info->fields_mask |= EV_DOCUMENT_INFO_KEYWORDS;
+        if (info->creator)
+                info->fields_mask |= EV_DOCUMENT_INFO_CREATOR;
+        if (info->producer)
+                info->fields_mask |= EV_DOCUMENT_INFO_PRODUCER;
+
+        ev_document_info_take_created_datetime (info, created_datetime);
+        ev_document_info_take_modified_datetime (info, modified_datetime);
+
 	if (metadata != NULL) {
-		pdf_document_parse_metadata (metadata, info);
+                ev_document_info_set_from_xmp (info, metadata, -1);
 		g_free (metadata);
 	}
 
@@ -1108,6 +654,7 @@ pdf_document_get_info (EvDocument *document)
 			break;
 		case POPPLER_PAGE_LAYOUT_TWO_COLUMN_RIGHT:
 			info->layout = EV_DOCUMENT_LAYOUT_TWO_COLUMN_RIGHT;
+			break;
 		case POPPLER_PAGE_LAYOUT_TWO_PAGE_LEFT:
 			info->layout = EV_DOCUMENT_LAYOUT_TWO_PAGE_LEFT;
 			break;
@@ -1184,12 +731,9 @@ pdf_document_get_info (EvDocument *document)
 
 	info->linearized = linearized ? g_strdup (_("Yes")) : g_strdup (_("No"));
 
-#if POPPLER_CHECK_VERSION(0, 90, 0)
 	info->contains_js = poppler_document_has_javascript (PDF_DOCUMENT (document)->document) ?
 	                    EV_DOCUMENT_CONTAINS_JS_YES : EV_DOCUMENT_CONTAINS_JS_NO;
-#else
-	info->contains_js = EV_DOCUMENT_CONTAINS_JS_UNKNOWN;
-#endif
+        info->fields_mask |= EV_DOCUMENT_INFO_CONTAINS_JS;
 
 	return info;
 }
@@ -1245,6 +789,7 @@ pdf_document_class_init (PdfDocumentClass *klass)
 	ev_document_class->get_info = pdf_document_get_info;
 	ev_document_class->get_backend_info = pdf_document_get_backend_info;
 	ev_document_class->support_synctex = pdf_document_support_synctex;
+        ev_document_class->load_fd = pdf_document_load_fd;
 }
 
 /* EvDocumentSecurity */
@@ -1705,7 +1250,6 @@ ev_link_from_action (PdfDocument   *pdf_document,
 	        case POPPLER_ACTION_JAVASCRIPT:
 			unimplemented_action = "POPPLER_ACTION_JAVASCRIPT";
 			break;
-#if POPPLER_CHECK_VERSION(0, 90, 0)
 	        case POPPLER_ACTION_RESET_FORM: {
 			gboolean  exclude_reset_fields;
 			GList    *reset_fields = NULL;
@@ -1721,7 +1265,6 @@ ev_link_from_action (PdfDocument   *pdf_document,
 								   exclude_reset_fields);
 			break;
 		}
-#endif
 	        case POPPLER_ACTION_UNKNOWN:
 			unimplemented_action = "POPPLER_ACTION_UNKNOWN";
 	}
@@ -1967,9 +1510,59 @@ pdf_document_document_images_iface_init (EvDocumentImagesInterface *iface)
 
 static GList *
 pdf_document_find_find_text_with_options (EvDocumentFind *document_find,
-					  EvPage         *page,
-					  const gchar    *text,
-					  EvFindOptions   options)
+                                          EvPage         *page,
+                                          const gchar    *text,
+                                          EvFindOptions   options)
+{
+        GList *matches, *l;
+        PopplerPage *poppler_page;
+        gdouble height;
+        GList *retval = NULL;
+        guint find_flags = 0;
+
+        g_return_val_if_fail (POPPLER_IS_PAGE (page->backend_page), NULL);
+        g_return_val_if_fail (text != NULL, NULL);
+
+        poppler_page = POPPLER_PAGE (page->backend_page);
+
+        if (options & EV_FIND_CASE_SENSITIVE)
+                find_flags |= POPPLER_FIND_CASE_SENSITIVE;
+        else    /* When search is not case sensitive, do also ignore diacritics
+                to broaden our search in order to match on more expected results */
+                find_flags |= POPPLER_FIND_IGNORE_DIACRITICS;
+
+        if (options & EV_FIND_WHOLE_WORDS_ONLY)
+                find_flags |= POPPLER_FIND_WHOLE_WORDS_ONLY;
+        matches = poppler_page_find_text_with_options (poppler_page, text, (PopplerFindFlags)find_flags);
+        if (!matches)
+                return NULL;
+
+        poppler_page_get_size (poppler_page, NULL, &height);
+        for (l = matches; l && l->data; l = g_list_next (l)) {
+                PopplerRectangle *rect = (PopplerRectangle *)l->data;
+                EvRectangle      *ev_rect;
+
+                ev_rect = ev_rectangle_new ();
+                ev_rect->x1 = rect->x1;
+                ev_rect->x2 = rect->x2;
+                /* Invert this for X-style coordinates */
+                ev_rect->y1 = height - rect->y2;
+                ev_rect->y2 = height - rect->y1;
+
+                retval = g_list_prepend (retval, ev_rect);
+        }
+
+        g_list_foreach (matches, (GFunc)poppler_rectangle_free, NULL);
+        g_list_free (matches);
+
+        return g_list_reverse (retval);
+}
+
+static GList *
+pdf_document_find_find_text_extended (EvDocumentFind *document_find,
+				      EvPage         *page,
+				      const gchar    *text,
+				      EvFindOptions   options)
 {
 	GList *matches, *l;
 	PopplerPage *poppler_page;
@@ -1984,34 +1577,35 @@ pdf_document_find_find_text_with_options (EvDocumentFind *document_find,
 
 	if (options & EV_FIND_CASE_SENSITIVE)
 		find_flags |= POPPLER_FIND_CASE_SENSITIVE;
-#if POPPLER_CHECK_VERSION(0, 76, 0)
 	else    /* When search is not case sensitive, do also ignore diacritics
 	        to broaden our search in order to match on more expected results */
 		find_flags |= POPPLER_FIND_IGNORE_DIACRITICS;
-#endif
+
 	if (options & EV_FIND_WHOLE_WORDS_ONLY)
 		find_flags |= POPPLER_FIND_WHOLE_WORDS_ONLY;
+
+	/* Allow to match on text spanning from one line to the next */
+	find_flags |= POPPLER_FIND_MULTILINE;
 	matches = poppler_page_find_text_with_options (poppler_page, text, (PopplerFindFlags)find_flags);
 	if (!matches)
 		return NULL;
 
 	poppler_page_get_size (poppler_page, NULL, &height);
 	for (l = matches; l && l->data; l = g_list_next (l)) {
-		PopplerRectangle *rect = (PopplerRectangle *)l->data;
-		EvRectangle      *ev_rect;
+		EvFindRectangle *ev_rect = ev_find_rectangle_new ();
 
-		ev_rect = ev_rectangle_new ();
+		PopplerRectangle *rect = (PopplerRectangle *)l->data;
 		ev_rect->x1 = rect->x1;
 		ev_rect->x2 = rect->x2;
 		/* Invert this for X-style coordinates */
 		ev_rect->y1 = height - rect->y2;
 		ev_rect->y2 = height - rect->y1;
-
+		ev_rect->next_line = poppler_rectangle_find_get_match_continued (rect);
+		ev_rect->after_hyphen = ev_rect->next_line && poppler_rectangle_find_get_ignored_hyphen (rect);
 		retval = g_list_prepend (retval, ev_rect);
 	}
 
-	g_list_foreach (matches, (GFunc)poppler_rectangle_free, NULL);
-	g_list_free (matches);
+	g_list_free_full (matches, (GDestroyNotify) poppler_rectangle_free);
 
 	return g_list_reverse (retval);
 }
@@ -2041,6 +1635,7 @@ pdf_document_find_iface_init (EvDocumentFindInterface *iface)
 {
         iface->find_text = pdf_document_find_find_text;
 	iface->find_text_with_options = pdf_document_find_find_text_with_options;
+	iface->find_text_extended = pdf_document_find_find_text_extended;
 	iface->get_supported_options = pdf_document_find_get_supported_options;
 }
 
@@ -2410,36 +2005,25 @@ pdf_selection_get_selected_text (EvSelection     *selection,
 }
 
 static cairo_region_t *
-create_region_from_poppler_region (GList *region, gdouble xscale, gdouble yscale)
+create_region_from_poppler_region (cairo_region_t *region,
+				   gdouble         xscale,
+				   gdouble         yscale)
 {
-	GList *l;
+	int n_rects;
 	cairo_region_t *retval;
 
 	retval = cairo_region_create ();
 
-	for (l = region; l; l = g_list_next (l)) {
-		PopplerRectangle   *rectangle;
+	n_rects = cairo_region_num_rectangles (region);
+	for (int i = 0; i < n_rects; i++) {
 		cairo_rectangle_int_t rect;
 
-		rectangle = (PopplerRectangle *)l->data;
-		if (rectangle->x2 < rectangle->x1) {
-			double tmp = rectangle->x2;
-			rectangle->x2 = rectangle->x1;
-			rectangle->x1 = tmp;
-		}
-		if (rectangle->y2 < rectangle->y1) {
-			double tmp = rectangle->y2;
-			rectangle->y2 = rectangle->y1;
-			rectangle->y1 = tmp;
-		}
-
-		rect.x = (gint) ((rectangle->x1 * xscale) + 0.5);
-		rect.y = (gint) ((rectangle->y1 * yscale) + 0.5);
-		rect.width  = (gint) ((rectangle->x2 * xscale) + 0.5) - rect.x;
-		rect.height = (gint) ((rectangle->y2 * yscale) + 0.5) - rect.y;
+		cairo_region_get_rectangle (region, i, &rect);
+		rect.x = (int) (rect.x * xscale + 0.5);
+		rect.y = (int) (rect.y * yscale + 0.5);
+		rect.width = (int) (rect.width * xscale + 0.5);
+		rect.height = (int) (rect.height * yscale + 0.5);
 		cairo_region_union_rectangle (retval, &rect);
-
-		poppler_rectangle_free (rectangle);
 	}
 
 	return retval;
@@ -2452,21 +2036,21 @@ pdf_selection_get_selection_region (EvSelection     *selection,
 				    EvRectangle     *points)
 {
 	PopplerPage    *poppler_page;
-	cairo_region_t *retval;
-	GList          *region;
+	cairo_region_t *retval, *region;
 	double page_width, page_height;
 	double xscale, yscale;
 
 	poppler_page = POPPLER_PAGE (rc->page->backend_page);
-	region = poppler_page_get_selection_region (poppler_page,
-						    1.0,
-						    (PopplerSelectionStyle)style,
-						    (PopplerRectangle *) points);
+	region = poppler_page_get_selected_region (poppler_page,
+						   1.0,
+						   (PopplerSelectionStyle)style,
+						   (PopplerRectangle *)points);
+
 	poppler_page_get_size (poppler_page,
 			       &page_width, &page_height);
 	ev_render_context_compute_scales (rc, page_width, page_height, &xscale, &yscale);
 	retval = create_region_from_poppler_region (region, xscale, yscale);
-	g_list_free (region);
+	cairo_region_destroy (region);
 
 	return retval;
 }
@@ -2487,7 +2071,6 @@ pdf_document_text_get_text_mapping (EvDocumentText *document_text,
 {
 	PopplerPage *poppler_page;
 	PopplerRectangle points;
-	GList *region;
 	cairo_region_t *retval;
 
 	g_return_val_if_fail (POPPLER_IS_PAGE (page->backend_page), NULL);
@@ -2498,11 +2081,9 @@ pdf_document_text_get_text_mapping (EvDocumentText *document_text,
 	points.y1 = 0.0;
 	poppler_page_get_size (poppler_page, &(points.x2), &(points.y2));
 
-	region = poppler_page_get_selection_region (poppler_page, 1.0,
-						    POPPLER_SELECTION_GLYPH,
-						    &points);
-	retval = create_region_from_poppler_region (region, 1.0, 1.0);
-	g_list_free (region);
+	retval = poppler_page_get_selected_region (poppler_page, 1.0,
+						   POPPLER_SELECTION_GLYPH,
+						   &points);
 
 	return retval;
 }
@@ -2691,9 +2272,7 @@ ev_form_field_from_poppler_field (PdfDocument      *pdf_document,
 	font_size = poppler_form_field_get_font_size (poppler_field);
 	is_read_only = poppler_form_field_is_read_only (poppler_field);
 	action = poppler_form_field_get_action (poppler_field);
-#if POPPLER_CHECK_VERSION(0, 88, 0)
 	alt_ui_name = poppler_form_field_get_alternate_ui_name (poppler_field);
-#endif
 
 	switch (poppler_form_field_get_field_type (poppler_field)) {
 	        case POPPLER_FORM_FIELD_TEXT: {
@@ -2851,11 +2430,9 @@ static void
 pdf_document_forms_reset_form (EvDocumentForms *document,
                                EvLinkAction    *action)
 {
-#if POPPLER_CHECK_VERSION(0, 90, 0)
 	poppler_document_reset_form (PDF_DOCUMENT (document)->document,
 	                             ev_link_action_get_reset_fields (action),
 	                             ev_link_action_get_exclude_reset_fields (action));
-#endif
 }
 
 static gchar *
@@ -3074,19 +2651,22 @@ pdf_document_document_forms_iface_init (EvDocumentFormsInterface *iface)
 
 /* Annotations */
 static void
-poppler_annot_color_to_gdk_color (PopplerAnnot *poppler_annot,
-				  GdkColor     *color)
+poppler_annot_color_to_gdk_rgba (PopplerAnnot *poppler_annot,
+				 GdkRGBA      *color)
 {
 	PopplerColor *poppler_color;
 
 	poppler_color = poppler_annot_get_color (poppler_annot);
 	if (poppler_color) {
-		color->red = poppler_color->red;
-		color->green = poppler_color->green;
-		color->blue = poppler_color->blue;
+		color->red = CLAMP ((double) poppler_color->red / 65535.0,   0.0, 1.0);
+		color->green = CLAMP ((double) poppler_color->green / 65535.0,   0.0, 1.0),
+		color->blue = CLAMP ((double) poppler_color->blue / 65535.0,   0.0, 1.0),
+		color->alpha = 1.0;
 
 		g_free (poppler_color);
-	} /* TODO: else use a default color */
+	} else { /* default color */
+		*color = EV_ANNOTATION_DEFAULT_COLOR;
+	}
 }
 
 static EvAnnotationTextIcon
@@ -3303,7 +2883,7 @@ ev_annot_from_poppler_annot (PopplerAnnot *poppler_annot,
 		gchar   *modified;
 		gchar   *contents;
 		gchar   *name;
-		GdkColor color;
+		GdkRGBA  color;
 
 		contents = poppler_annot_get_contents (poppler_annot);
 		if (contents) {
@@ -3325,8 +2905,8 @@ ev_annot_from_poppler_annot (PopplerAnnot *poppler_annot,
 		}
 		g_free (modified);
 
-		poppler_annot_color_to_gdk_color (poppler_annot, &color);
-		ev_annotation_set_color (ev_annot, &color);
+		poppler_annot_color_to_gdk_rgba (poppler_annot, &color);
+		ev_annotation_set_rgba (ev_annot, &color);
 
 		if (poppler_annot_can_have_popup_window (poppler_annot)) {
 			PopplerAnnotMarkup *markup;
@@ -3362,10 +2942,11 @@ ev_annot_from_poppler_annot (PopplerAnnot *poppler_annot,
 			}
 
 			label = poppler_annot_markup_get_label (markup);
+			if (label)
+				g_object_set (ev_annot, "label", label, NULL);
 			opacity = poppler_annot_markup_get_opacity (markup);
 
 			g_object_set (ev_annot,
-				      "label", label,
 				      "opacity", opacity,
 				      "can_have_popup", TRUE,
 				      NULL);
@@ -3406,7 +2987,6 @@ pdf_document_annotations_get_annotations (EvDocumentAnnotations *document_annota
 	GList *annots;
 	GList *list;
 	gdouble height;
-	gint i = 0;
 
 	pdf_document = PDF_DOCUMENT (document_annotations);
 	poppler_page = POPPLER_PAGE (page->backend_page);
@@ -3431,8 +3011,6 @@ pdf_document_annotations_get_annotations (EvDocumentAnnotations *document_annota
 		ev_annot = ev_annot_from_poppler_annot (mapping->annot, page);
 		if (!ev_annot)
 			continue;
-
-		i++;
 
 		/* Make sure annot has a unique name */
 		if (!ev_annotation_get_name (ev_annot))
@@ -3529,7 +3107,7 @@ get_quads_for_area (PopplerPage      *page,
 		    EvRectangle      *area,
 		    PopplerRectangle *bbox)
 {
-	GList  *rects, *l;
+	cairo_region_t *region;
 	guint   n_rects;
 	guint   i;
 	GArray *quads;
@@ -3545,28 +3123,29 @@ get_quads_for_area (PopplerPage      *page,
 
 	poppler_page_get_size (page, NULL, &height);
 
-	rects = poppler_page_get_selection_region (page, 1.0, POPPLER_SELECTION_GLYPH,
+	region = poppler_page_get_selected_region (page, 1.0, POPPLER_SELECTION_GLYPH,
 						   (PopplerRectangle *)area);
-	n_rects = g_list_length (rects);
+	n_rects = cairo_region_num_rectangles (region);
+	g_debug ("Number rects: %d", n_rects);
 
 	quads = g_array_sized_new (TRUE, TRUE,
 				   sizeof (PopplerQuadrilateral),
 				   n_rects);
 	g_array_set_size (quads, MAX (1, n_rects));
 
-	for (l = rects, i = 0; i < n_rects; i++, l = l->next) {
-		PopplerRectangle     *r = (PopplerRectangle *) l->data;
+	for (i = 0; i < n_rects; i++) {
+		cairo_rectangle_int_t r;
 		PopplerQuadrilateral *quad = &g_array_index (quads, PopplerQuadrilateral, i);
+		cairo_region_get_rectangle (region, i, &r);
 
-		quad->p1.x = r->x1;
-		quad->p1.y = height - r->y1;
-		quad->p2.x = r->x2;
-		quad->p2.y = height - r->y1;
-		quad->p3.x = r->x1;
-		quad->p3.y = height - r->y2;
-		quad->p4.x = r->x2;
-		quad->p4.y = height - r->y2;
-		poppler_rectangle_free (r);
+		quad->p1.x = r.x;
+		quad->p1.y = height - r.y;
+		quad->p2.x = r.x + r.width;
+		quad->p2.y = height - r.y;
+		quad->p3.x = r.x;
+		quad->p3.y = height - (r.y + r.height);
+		quad->p4.x = r.x + r.width;
+		quad->p4.y = height - (r.y + r.height);
 
 		if (!bbox)
 			continue;
@@ -3585,7 +3164,7 @@ get_quads_for_area (PopplerPage      *page,
 		if (max_y > bbox->y2)
 			bbox->y2 = max_y;
 	}
-	g_list_free (rects);
+	cairo_region_destroy (region);
 
 	if (n_rects == 0 && bbox) {
 		bbox->x1 = 0;
@@ -3612,7 +3191,7 @@ pdf_document_annotations_add_annotation (EvDocumentAnnotations *document_annotat
 	PopplerRectangle poppler_rect;
 	gdouble          height;
 	PopplerColor     poppler_color;
-	GdkColor         color;
+	GdkRGBA          color;
 	EvRectangle      rect;
 
 	pdf_document = PDF_DOCUMENT (document_annotations);
@@ -3670,10 +3249,10 @@ pdf_document_annotations_add_annotation (EvDocumentAnnotations *document_annotat
 			g_assert_not_reached ();
 	}
 
-	ev_annotation_get_color (annot, &color);
-	poppler_color.red = color.red;
-	poppler_color.green = color.green;
-	poppler_color.blue = color.blue;
+	ev_annotation_get_rgba (annot, &color);
+	poppler_color.red = CLAMP ((guint) (color.red * 65535), 0, 65535);
+	poppler_color.green = CLAMP ((guint) (color.green * 65535), 0, 65535);
+	poppler_color.blue = CLAMP ((guint) (color.blue * 65535), 0, 65535);
 	poppler_annot_set_color (poppler_annot, &poppler_color);
 
 	if (EV_IS_ANNOTATION_MARKUP (annot)) {
@@ -3797,12 +3376,12 @@ pdf_document_annotations_save_annotation (EvDocumentAnnotations *document_annota
 
 	if (mask & EV_ANNOTATIONS_SAVE_COLOR) {
 		PopplerColor color;
-		GdkColor     ev_color;
+		GdkRGBA      ev_color;
 
-		ev_annotation_get_color (annot, &ev_color);
-		color.red = ev_color.red;
-		color.green = ev_color.green;
-		color.blue = ev_color.blue;
+		ev_annotation_get_rgba (annot, &ev_color);
+		color.red = CLAMP ((guint) (ev_color.red * 65535), 0, 65535);
+		color.green = CLAMP ((guint) (ev_color.green * 65535), 0, 65535);
+		color.blue = CLAMP ((guint) (ev_color.blue * 65535), 0, 65535);
 		poppler_annot_set_color (poppler_annot, &color);
 	}
 
@@ -4405,6 +3984,10 @@ build_layers_tree (PdfDocument       *pdf_document,
 			gchar *title;
 
 			title = poppler_layers_iter_get_title (iter);
+
+			if (title == NULL)
+				continue;
+
 			markup = g_markup_escape_text (title, -1);
 			g_free (title);
 

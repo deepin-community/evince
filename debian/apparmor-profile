@@ -28,6 +28,9 @@
   #include <abstractions/ubuntu-console-email>
   #include <abstractions/ubuntu-media-players>
 
+  # allow evince to spawn browsers distributed as snaps (LP: #1794064)
+  #include if exists <abstractions/snap_browsers>
+
   # For now, let evince talk to any session services over dbus. We can
   # blacklist any problematic ones (but note, evince uses libsecret :\)
   #include <abstractions/dbus-session>
@@ -68,11 +71,11 @@
   /usr/bin/krusader Cx -> sanitized_helper, # KDE
   /usr/bin/thunar Cx -> sanitized_helper,   # XFCE
 
+  # Print Dialog
+  /usr/lib/@{multiarch}/libproxy/*/pxgsettings Cx -> sanitized_helper,
+
   # For Xubuntu to launch the browser
-  /usr/bin/exo-open ixr,
-  /usr/lib/@{multiarch}/xfce4/exo-1/exo-helper-1 ixr,
-  /etc/xdg/xdg-xubuntu/xfce4/helpers.rc r,
-  /etc/xdg/xfce4/helpers.rc r,
+  #include <abstractions/exo-open>
 
   # For text attachments
   /usr/bin/gedit ixr,
@@ -116,6 +119,10 @@
   owner /{,var/}run/user/*/at-spi2-*/   rw,
   owner /{,var/}run/user/*/at-spi2-*/** rw,
 
+  # Allow access to the non-abstract D-Bus socket used by at-spi > 2.42.0
+  #   https://gitlab.gnome.org/GNOME/at-spi2-core/-/issues/43
+  owner /{,var/}run/user/*/at-spi/bus* rw,
+
   # from http://live.gnome.org/Evince/SupportedDocumentFormats. Allow
   # read and write for all supported file formats
   /**.[aA][iI]         rw,
@@ -142,6 +149,9 @@
   # evince creates a temporary stream file like '.goutputstream-XXXXXX' in the
   # directory a file is saved. This allows that behavior.
   owner /**/.goutputstream-* w,
+
+  # allow evince to spawn browsers distributed as snaps (LP: #1794064)
+  /{,snap/core/[0-9]*/,snap/snapd/[0-9]*/}usr/bin/snap mrCx -> snap_browsers,
 }
 
 /usr/bin/evince-previewer {
@@ -312,7 +322,7 @@
   /**.[xX][pP][mM]     r,
   /**.[gG][zZ]         r,
   /**.[bB][zZ]2        r,
-  /**.[cC][bB][rRzZ7]  r,
+  /**.[cC][bB][rRtTzZ7]  r,
   /**.[xX][zZ]         r,
 
   owner @{HOME}/.texlive*/** r,

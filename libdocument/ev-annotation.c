@@ -145,25 +145,10 @@ ev_annotation_finalize (GObject *object)
 {
         EvAnnotation *annot = EV_ANNOTATION (object);
 
-	if (annot->page) {
-		g_object_unref (annot->page);
-		annot->page = NULL;
-	}
-
-        if (annot->contents) {
-                g_free (annot->contents);
-                annot->contents = NULL;
-        }
-
-        if (annot->name) {
-                g_free (annot->name);
-                annot->name = NULL;
-        }
-
-        if (annot->modified) {
-                g_free (annot->modified);
-                annot->modified = NULL;
-        }
+	g_clear_object (&annot->page);
+	g_clear_pointer (&annot->contents, g_free);
+	g_clear_pointer (&annot->name, g_free);
+	g_clear_pointer (&annot->modified, g_free);
 
         G_OBJECT_CLASS (ev_annotation_parent_class)->finalize (object);
 }
@@ -511,8 +496,8 @@ ev_annotation_get_modified (EvAnnotation *annot)
  * @modified: string with the last modification date.
  *
  * Set the last modification date of @annot to @modified. To
- * set the last modification date using a #GTime, use
- * ev_annotation_set_modified_from_time() instead. You can monitor
+ * set the last modification date using a #time_t, use
+ * ev_annotation_set_modified_from_time_t() instead. You can monitor
  * changes to the last modification date by connecting to the
  * notify::modified signal on @annot.
  *
@@ -547,7 +532,11 @@ ev_annotation_set_modified (EvAnnotation *annot,
  * For the time-format used, see ev_document_misc_format_date().
  *
  * Returns: %TRUE if the last modified date has been updated, %FALSE otherwise.
+ *
+ * Deprecated: 3.42: use ev_annotation_set_modified_from_time_t instead as GTime is
+ *                   deprecated because it is not year-2038 safe
  */
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 gboolean
 ev_annotation_set_modified_from_time (EvAnnotation *annot,
 				      GTime         utime)
@@ -567,6 +556,44 @@ ev_annotation_set_modified_from_time (EvAnnotation *annot,
 		g_free (annot->modified);
 	annot->modified = modified;
 
+	g_object_notify (G_OBJECT (annot), "modified");
+
+	return TRUE;
+}
+G_GNUC_END_IGNORE_DEPRECATIONS
+
+/**
+ * ev_annotation_set_modified_from_time_t:
+ * @annot: an #EvAnnotation
+ * @utime: a #time_t
+ *
+ * Set the last modification date of @annot to @utime.  You can
+ * monitor changes to the last modification date by connecting to the
+ * notify::modified sinal on @annot.
+ * For the time-format used, see ev_document_misc_format_datetime().
+ *
+ * Returns: %TRUE if the last modified date has been updated, %FALSE otherwise.
+ */
+gboolean
+ev_annotation_set_modified_from_time_t (EvAnnotation *annot,
+				        time_t        utime)
+{
+	gchar *modified;
+	g_autoptr (GDateTime) dt = g_date_time_new_from_unix_utc ((gint64)utime);
+
+	g_return_val_if_fail (EV_IS_ANNOTATION (annot), FALSE);
+
+	modified = ev_document_misc_format_datetime (dt);
+
+	if (g_strcmp0 (annot->modified, modified) == 0) {
+		g_free (modified);
+		return FALSE;
+	}
+
+	if (annot->modified)
+		g_free (annot->modified);
+
+	annot->modified = modified;
 	g_object_notify (G_OBJECT (annot), "modified");
 
 	return TRUE;
@@ -685,7 +712,7 @@ ev_annotation_set_rgba (EvAnnotation  *annot,
 }
 
 /**
- * ev_annotation_set_area:
+ * ev_annotation_get_area:
  * @annot: an #EvAnnotation
  * @area: (out): a #EvRectangle to be filled with the annotation area
  *
@@ -1237,10 +1264,7 @@ ev_annotation_attachment_finalize (GObject *object)
 {
 	EvAnnotationAttachment *annot = EV_ANNOTATION_ATTACHMENT (object);
 
-	if (annot->attachment) {
-		g_object_unref (annot->attachment);
-		annot->attachment = NULL;
-	}
+	g_clear_object (&annot->attachment);
 
 	G_OBJECT_CLASS (ev_annotation_attachment_parent_class)->finalize (object);
 }

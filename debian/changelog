@@ -1,3 +1,263 @@
+evince (46.3.1-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 22 Jul 2024 13:53:44 -0600
+
+evince (46.3-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 29 May 2024 08:51:19 -0400
+
+evince (46.1-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Tue, 14 May 2024 12:26:37 +0200
+
+evince (46.0-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update Homepage
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 20 Mar 2024 15:51:58 -0400
+
+evince (45.0-2) unstable; urgency=medium
+
+  * Stop using debian/control.in and dh_gnome_clean
+  * Release to unstable (Closes: #1062541)
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Tue, 27 Feb 2024 21:28:15 -0500
+
+evince (45.0-1.1~exp1) experimental; urgency=medium
+
+  * Non-maintainer upload.
+  * Rename libraries for 64-bit time_t transition.
+
+ -- Michael Hudson-Doyle <mwhudson@debian.org>  Thu, 01 Feb 2024 21:20:15 +0000
+
+evince (45.0-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 18 Sep 2023 18:17:11 -0400
+
+evince (45~rc-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Tue, 05 Sep 2023 08:51:08 -0400
+
+evince (45~alpha-2) unstable; urgency=medium
+
+  * Release to unstable
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 16 Aug 2023 20:07:41 -0400
+
+evince (45~alpha-1) experimental; urgency=medium
+
+  * New upstream release
+  * debian/control.in: Bump minimum poppler to 22.05
+  * debian/control.in: Don't Build-Depend on adwaita-icon-theme
+  * debian/evince.install: Drop long obsolete gconf migration file
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 16 Aug 2023 11:40:22 -0400
+
+evince (44.3-3) unstable; urgency=high
+
+  * d/rules, d/meson/no-exe-wrapper.ini: Work around FTBFS on mips64el
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 07 Aug 2023 13:46:39 -0400
+
+evince (44.3-2) unstable; urgency=medium
+
+  * Release to unstable
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 21 Jul 2023 12:13:05 -0400
+
+evince (44.3-1) experimental; urgency=medium
+
+  * Team upload
+  * New upstream release
+
+ -- jardon <jarred.wilson@canonical.com>  Wed, 12 Jul 2023 13:32:28 -0400
+
+evince (44.2-1) experimental; urgency=medium
+
+  * Team upload
+  * New upstream release
+    - data:
+      + Fix years on 44.x releases
+        (https://gitlab.gnome.org/GNOME/evince/-/issues/1950,
+        Germán Poo-Caamaño)
+    - shell:
+      + Fix crash when instantiating .ui template
+        (https://gitlab.gnome.org/GNOME/evince/-/issues/1930,
+        Nelson Benítez León)
+      + Fix restoring close button after fullscreen
+        (https://gitlab.gnome.org/GNOME/evince/-/issues/1929,
+        Nelson Benítez León)
+  * Update standards version to 4.6.2, no changes needed
+
+ -- Amin Bandali <bandali@ubuntu.com>  Wed, 21 Jun 2023 00:39:39 -0400
+
+evince (44.1-2) experimental; urgency=medium
+
+  [ Georgia Garcia ]
+  * Allow evince to spawn browsers distributed as snaps (LP: #1794064)
+    - debian/apparmor-profile: include snap-browsers abstracted profile
+      and allow transitions to them in evince
+  * Note that this fix requires a corresponding change in apparmor
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 12 Jun 2023 15:20:51 -0400
+
+evince (44.1-1) experimental; urgency=medium
+
+  * New upstream release
+  * debian/control.in: Bump minimum meson to 0.59.0
+  * debian/control.in: Build-Depend on desktop-file-utils
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 27 Mar 2023 07:02:08 -0400
+
+evince (43.1-2) unstable; urgency=medium
+
+  [ Andrej Shadura ]
+  * Print dialog requires access to libproxy’s pxgsettings (Closes: #1002725)
+    (LP: #1915910)
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Wed, 07 Dec 2022 11:20:50 +0100
+
+evince (43.1-1) unstable; urgency=medium
+
+  [ Anders Jonsson ]
+  * debian/apparmor-profile: Allow .cbt files for thumbnailer
+
+  [ Andreas Henriksson ]
+  * New upstream release
+  * Drop override, nautilus extension now disabled by default
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sun, 04 Dec 2022 13:56:51 +0100
+
+evince (43.0-1) unstable; urgency=medium
+
+  [ Jeremy Bicha ]
+  * New upstream release
+  * debian/control.in: Bump minimum meson to 0.57.0
+
+  [ Simon McVittie ]
+  * d/control.in: Drop alternative B-D on libgdk-pixbuf2.0-dev
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 19 Sep 2022 10:08:47 -0400
+
+evince (43~alpha-1) unstable; urgency=medium
+
+  * New upstream release
+  * Stop building Nautilus extension becuase
+    Nautilus 43 uses gtk4 but evince still uses gtk3
+  * debian/*.symbols: Add new symbols
+  * Drop patch: applied in new release
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 15 Aug 2022 14:30:09 -0400
+
+evince (42.3-2) unstable; urgency=medium
+
+  [ Sebastien Bacher ]
+   * debian/apparmor-profile:
+    - authorize the new at-spi socket location (LP: #1978838)
+
+  [ Jeremy Bicha ]
+  * Cherry-pick patch to fix build with gnome-desktop 43
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Thu, 28 Jul 2022 09:45:11 -0400
+
+evince (42.3-1) unstable; urgency=medium
+
+  * New upstream release (LP: #1975489)
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 23 May 2022 08:26:52 -0400
+
+evince (42.2-1) unstable; urgency=medium
+
+  * New upstream release
+  * Drop all patches: applied in new release
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 18 Apr 2022 09:23:50 -0400
+
+evince (42.1-3) unstable; urgency=medium
+
+  * Cherry-pick commits from gnome-42 branch up to April 10:
+    - Translation updates
+    - Fix a user-after-free in the comics backend (LP: #1968903)
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Wed, 13 Apr 2022 12:43:04 -0400
+
+evince (42.1-2) unstable; urgency=medium
+
+  * debian/control.in: Bump minimum libarchive to 3.6.0
+  * Drop libarchive revert commits (LP: #1967127)
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Wed, 30 Mar 2022 08:17:47 -0400
+
+evince (42.1-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 21 Mar 2022 08:20:48 -0400
+
+evince (42.0-1) unstable; urgency=medium
+
+  * New upstream release
+  * Release to unstable
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Fri, 18 Mar 2022 11:10:55 -0400
+
+evince (42~rc-1) experimental; urgency=medium
+
+  * New upstream release (LP: #1963241)
+
+ -- Jeremy Bicha <jeremy.bicha@canonical.com>  Tue, 08 Mar 2022 08:08:25 -0500
+
+evince (42~beta-1) experimental; urgency=medium
+
+  * New upstream release (LP: #1963241)
+  * Drop all patches: applied in new release
+  * Update debian/*symbols files
+  * debian/control.in: Use source:Version for Depends: evince-common
+  * debian/control.in: Bump minimum poppler to 22.02 & GTK3 to 3.22
+  * debian/control.in: Build-Depend on gi-docgen instead of gtk-doc-tools
+  * debian/libevince-dev.install: Update docs install location
+  * Revert 2 commits that require libarchive 3.6 since it's not in Debian yet
+
+ -- Jeremy Bicha <jeremy.bicha@canonical.com>  Thu, 03 Mar 2022 15:34:26 +0100
+
+evince (41.3-3) unstable; urgency=medium
+
+  * Cherry-pick patches to support GNOME 42 dark theme preference
+  * debian/control.in: Bump minimum libhandy to 1.5.90
+
+ -- Jeremy Bicha <jeremy.bicha@canonical.com>  Wed, 16 Feb 2022 15:20:08 -0500
+
+evince (41.3-2) unstable; urgency=medium
+
+  * Team upload
+  * Add patch from upstream to fix FTBFS with Meson 0.61
+    (Closes: #1005520)
+
+ -- Simon McVittie <smcv@debian.org>  Sun, 13 Feb 2022 14:16:52 +0000
+
+evince (41.3-1) unstable; urgency=medium
+
+  [ Jeremy Bicha ]
+  * New upstream release
+
+  [ Sebastien Bacher ]
+  * debian/apparmor-profile:
+    - use the exo abstraction rather than listing the binaries directly
+      (lp: #1891338)
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sun, 21 Nov 2021 13:03:23 -0500
+
 evince (41.2-1) unstable; urgency=medium
 
   * New upstream release

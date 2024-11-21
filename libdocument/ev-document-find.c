@@ -45,7 +45,7 @@ ev_document_find_find_text (EvDocumentFind *document_find,
 			    gboolean        case_sensitive)
 {
 	EvDocumentFindInterface *iface = EV_DOCUMENT_FIND_GET_IFACE (document_find);
-	
+
 	return iface->find_text (document_find, page, text, case_sensitive);
 }
 
@@ -70,6 +70,52 @@ ev_document_find_find_text_with_options (EvDocumentFind *document_find,
 		return iface->find_text_with_options (document_find, page, text, options);
 
 	return ev_document_find_find_text (document_find, page, text, options & EV_FIND_CASE_SENSITIVE);
+}
+
+/**
+ * ev_document_find_find_text_extended:
+ * @document_find: an #EvDocumentFind
+ * @page: an #EvPage
+ * @text: text to find
+ * @options: a set of #EvFindOptions
+ *
+ * Returns: (transfer full) (element-type EvFindRectangle): a list of results
+ */
+GList *
+ev_document_find_find_text_extended (EvDocumentFind *document_find,
+				     EvPage         *page,
+				     const gchar    *text,
+				     EvFindOptions   options)
+{
+	EvDocumentFindInterface *iface = EV_DOCUMENT_FIND_GET_IFACE (document_find);
+
+	if (iface->find_text_extended)
+		return iface->find_text_extended (document_find, page, text, options);
+
+	g_warning ("Unimplemented find_text_extended() interface");
+	return NULL;
+}
+
+/* EvFindRectangle */
+G_DEFINE_BOXED_TYPE (EvFindRectangle, ev_find_rectangle, ev_find_rectangle_copy, ev_find_rectangle_free)
+
+EvFindRectangle *
+ev_find_rectangle_new (void)
+{
+	return g_slice_new0 (EvFindRectangle);
+}
+
+EvFindRectangle *
+ev_find_rectangle_copy (EvFindRectangle *rectangle)
+{
+	g_return_val_if_fail (rectangle != NULL, NULL);
+	return g_slice_dup (EvFindRectangle, rectangle);
+}
+
+void
+ev_find_rectangle_free (EvFindRectangle *rectangle)
+{
+	g_slice_free (EvFindRectangle, rectangle);
 }
 
 EvFindOptions

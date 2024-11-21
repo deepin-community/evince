@@ -51,6 +51,9 @@ struct _EvSidebarLinksPrivate {
 	EvDocumentModel *doc_model;
 
 	GTree *page_link_tree;
+
+	GMenuModel *popup_model;
+	GtkWidget  *popup;
 };
 
 enum {
@@ -78,28 +81,19 @@ static void job_finished_callback 			(EvJobLinks     *job,
 static void ev_sidebar_links_set_current_page           (EvSidebarLinks *sidebar_links,
 							 gint            current_page);
 static void sidebar_collapse_recursive                  (EvSidebarLinks *sidebar_links);
-static void collapse_all_cb				(GtkWidget      *menuitem,
-							 EvSidebarLinks *sidebar_links);
-static void expand_all_cb				(GtkWidget      *menuitem,
-							 EvSidebarLinks *sidebar_links);
-static void expand_all_under_selected_item_cb		(GtkWidget      *menuitem,
-							 EvSidebarLinks *sidebar_links);
 static void ev_sidebar_links_page_iface_init 		(EvSidebarPageInterface *iface);
 static gboolean ev_sidebar_links_support_document	(EvSidebarPage  *sidebar_page,
 						         EvDocument     *document);
 static const gchar* ev_sidebar_links_get_label 		(EvSidebarPage *sidebar_page);
 
 static guint signals[N_SIGNALS];
-static GtkWidget *menu_item_collapse_all;
-static GtkWidget *menu_item_expand_all;
-static GtkWidget *menu_item_expand_under;
 
-G_DEFINE_TYPE_EXTENDED (EvSidebarLinks, 
-                        ev_sidebar_links, 
+G_DEFINE_TYPE_EXTENDED (EvSidebarLinks,
+                        ev_sidebar_links,
                         GTK_TYPE_BOX,
-                        0, 
+                        0,
                         G_ADD_PRIVATE (EvSidebarLinks)
-                        G_IMPLEMENT_INTERFACE (EV_TYPE_SIDEBAR_PAGE, 
+                        G_IMPLEMENT_INTERFACE (EV_TYPE_SIDEBAR_PAGE,
 					       ev_sidebar_links_page_iface_init))
 
 
@@ -129,7 +123,7 @@ ev_sidebar_links_get_property (GObject    *object,
 			       GParamSpec *pspec)
 {
 	EvSidebarLinks *ev_sidebar_links;
-  
+
 	ev_sidebar_links = EV_SIDEBAR_LINKS (object);
 
 	switch (prop_id)
@@ -154,24 +148,15 @@ ev_sidebar_links_dispose (GObject *object)
 	if (sidebar->priv->job) {
 		g_signal_handlers_disconnect_by_func (sidebar->priv->job,
 						      job_finished_callback, sidebar);
-		ev_job_cancel (sidebar->priv->job);						      
-		g_object_unref (sidebar->priv->job);
-		sidebar->priv->job = NULL;
+		ev_job_cancel (sidebar->priv->job);
+		g_clear_object (&sidebar->priv->job);
 	}
 
-	if (sidebar->priv->model) {
-		g_object_unref (sidebar->priv->model);
-		sidebar->priv->model = NULL;
-	}
-
-	if (sidebar->priv->page_link_tree) {
-		g_tree_unref (sidebar->priv->page_link_tree);
-		sidebar->priv->page_link_tree = NULL;
-	}
+	g_clear_object (&sidebar->priv->model);
+	g_clear_pointer (&sidebar->priv->page_link_tree, g_tree_unref);
 
 	if (sidebar->priv->document) {
-		g_object_unref (sidebar->priv->document);
-		sidebar->priv->document = NULL;
+		g_clear_object (&sidebar->priv->document);
 		sidebar->priv->doc_model = NULL;
 	}
 
@@ -230,6 +215,19 @@ ev_sidebar_links_class_init (EvSidebarLinksClass *ev_sidebar_links_class)
 }
 
 static void
+ev_sidebar_links_set_action_enabled (EvSidebarLinks *ev_sidebar_links,
+				     const char     *name,
+				     gboolean        enabled)
+{
+	EvSidebarLinksPrivate *priv = ev_sidebar_links->priv;
+	GAction *action;
+	GSimpleActionGroup *group = G_SIMPLE_ACTION_GROUP (gtk_widget_get_action_group (priv->popup, "links"));
+
+	action = g_action_map_lookup_action (G_ACTION_MAP (group), name);
+	g_simple_action_set_enabled (G_SIMPLE_ACTION (action), enabled);
+}
+
+static void
 selection_changed_callback (GtkTreeSelection   *selection,
 		            EvSidebarLinks     *ev_sidebar_links)
 {
@@ -244,7 +242,7 @@ selection_changed_callback (GtkTreeSelection   *selection,
 		gtk_tree_model_get (model, &iter,
 				    EV_DOCUMENT_LINKS_COLUMN_LINK, &link,
 				    -1);
-		
+
 		if (link == NULL)
 			return;
 
@@ -285,8 +283,24 @@ create_loading_model (void)
 }
 
 static void
-print_section_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar)
+ev_links_popup_cmd_search_outline (GSimpleAction *action,
+				   GVariant      *parameter,
+				   gpointer       ev_sidebar_links)
 {
+	GtkWidget *window;
+
+	window = gtk_widget_get_toplevel (GTK_WIDGET (ev_sidebar_links));
+	if (EV_IS_WINDOW (window)) {
+		ev_window_start_page_selector_search (EV_WINDOW (window));
+	}
+}
+
+static void
+ev_links_popup_cmd_print_section (GSimpleAction *action,
+				  GVariant      *parameter,
+				  gpointer       ev_sidebar_links)
+{
+	EvSidebarLinks *sidebar = EV_SIDEBAR_LINKS (ev_sidebar_links);
 	GtkWidget *window;
 	GtkTreeSelection *selection;
 	GtkTreeModel *model;
@@ -314,7 +328,7 @@ print_section_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar)
 			g_object_unref (link);
 			return;
 		}
-		
+
 		first_page++;
 		g_object_unref (link);
 
@@ -333,7 +347,7 @@ print_section_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar)
 
 		if (last_page == -1)
 			last_page = ev_document_get_n_pages (sidebar->priv->document);
-	
+
 		window = gtk_widget_get_toplevel (GTK_WIDGET (sidebar));
 		if (EV_IS_WINDOW (window)) {
 			ev_window_print_range (EV_WINDOW (window), first_page, last_page);
@@ -341,53 +355,14 @@ print_section_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar)
 	}
 }
 
-static GtkMenu *
-build_popup_menu (EvSidebarLinks *sidebar)
-{
-	GtkWidget *menu;
-	GtkWidget *item;
-
-	menu = gtk_menu_new ();
-	item = gtk_menu_item_new_with_mnemonic(_("Print…"));
-	gtk_widget_show (item);
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	g_signal_connect (item, "activate",
-			  G_CALLBACK (print_section_cb), sidebar);
-
-	item = gtk_menu_item_new_with_mnemonic(_("Collapse all tree"));
-	gtk_widget_show (item);
-	menu_item_collapse_all = item; /* save ref to sensitivize later */
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	g_signal_connect (item, "activate",
-			  G_CALLBACK (collapse_all_cb), sidebar);
-
-	item = gtk_menu_item_new_with_mnemonic(_("Expand all tree"));
-	gtk_widget_show (item);
-	menu_item_expand_all = item; /* save ref to sensitivize later */
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	g_signal_connect (item, "activate",
-			  G_CALLBACK (expand_all_cb), sidebar);
-
-	item = gtk_menu_item_new_with_mnemonic(_("Expand all under this element"));
-	gtk_widget_show (item);
-	menu_item_expand_under = item; /* save ref to sensitivize later */
-	gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
-	g_signal_connect (item, "activate",
-			  G_CALLBACK (expand_all_under_selected_item_cb), sidebar);
-
-
-	gtk_menu_attach_to_widget (GTK_MENU (menu), sidebar->priv->tree_view, NULL);
-
-	return GTK_MENU (menu);
-}
-
 static void
 popup_menu_cb (GtkWidget *treeview, EvSidebarLinks *sidebar)
 {
-	GtkMenu *menu = build_popup_menu (sidebar);
+	EvSidebarLinksPrivate *priv = sidebar->priv;
 
-	ev_gui_menu_popup_at_tree_view_selection (menu, GTK_TREE_VIEW (sidebar->priv->tree_view));
-	gtk_menu_shell_select_first (GTK_MENU_SHELL (menu), FALSE);
+	ev_gui_menu_popup_at_tree_view_selection (GTK_MENU (priv->popup),
+						  GTK_TREE_VIEW (priv->tree_view));
+	gtk_menu_shell_select_first (GTK_MENU_SHELL (priv->popup), FALSE);
 }
 
 static gboolean
@@ -424,27 +399,29 @@ check_menu_sensitivity (GtkTreeView *treeview,
 		is_list_is_set = TRUE;
 		if (model_is_plain_list (model)) {
 			is_list = TRUE;
-			gtk_widget_set_sensitive (menu_item_collapse_all, FALSE);
-			gtk_widget_set_sensitive (menu_item_expand_all, FALSE);
-			gtk_widget_set_sensitive (menu_item_expand_under, FALSE);
+			ev_sidebar_links_set_action_enabled (sidebar, "collapse-all", FALSE);
+			ev_sidebar_links_set_action_enabled (sidebar, "expand-all", FALSE);
+			ev_sidebar_links_set_action_enabled (sidebar, "expand-element", FALSE);
 		}
 	}
 
-	if (is_list)
-		return;
-
-	/* Enable 'Expand under this' only when 'this' element has grandchildren */
-	gtk_tree_model_get_iter (model, &parent, selected_path);
-	if (gtk_tree_model_iter_children (model, &iter, &parent)) {
-		do {
-			if (gtk_tree_model_iter_has_child (model, &iter)) {
-				expand_under_sensitive = TRUE;
-				break;
-			}
-		} while (gtk_tree_model_iter_next (model, &iter));
+	if (!selected_path) {
+		ev_sidebar_links_set_action_enabled (sidebar, "print-section", FALSE);
+		ev_sidebar_links_set_action_enabled (sidebar, "expand-element", FALSE);
 	}
 
-	gtk_widget_set_sensitive (menu_item_expand_under, expand_under_sensitive);
+	if (is_list || !selected_path)
+		return;
+
+	ev_sidebar_links_set_action_enabled (sidebar, "print-section", TRUE);
+
+	/* Enable 'Expand under this' only when 'this' element has any child */
+	gtk_tree_model_get_iter (model, &parent, selected_path);
+	if (gtk_tree_model_iter_children (model, &iter, &parent)) {
+		expand_under_sensitive = TRUE;
+	}
+
+	ev_sidebar_links_set_action_enabled (sidebar, "expand-element", expand_under_sensitive);
 
 	/* If we're in collapsed all state, then disable 'collapse all' action */
 	if (gtk_tree_path_get_depth (selected_path) == 1) {
@@ -463,11 +440,23 @@ check_menu_sensitivity (GtkTreeView *treeview,
 				gtk_tree_path_free (path);
 			}
 		} while (gtk_tree_model_iter_next (model, &iter));
-		gtk_widget_set_sensitive (menu_item_collapse_all, !all_collapsed);
+		ev_sidebar_links_set_action_enabled (sidebar, "collapse-all", !all_collapsed);
 	} else
-		gtk_widget_set_sensitive (menu_item_collapse_all, TRUE);
+		ev_sidebar_links_set_action_enabled (sidebar, "collapse-all", TRUE);
+}
 
+static gboolean
+path_is_selected (GtkTreeView *treeview,
+                 GtkTreePath *path)
+{
+       GtkTreeModel *model;
+       GtkTreeSelection *selection;
+       GtkTreeIter iter;
 
+       model = gtk_tree_view_get_model (treeview);
+       selection = gtk_tree_view_get_selection (treeview);
+       return gtk_tree_model_get_iter (model, &iter, path) &&
+              gtk_tree_selection_iter_is_selected (selection, &iter);
 }
 
 static gboolean
@@ -475,33 +464,25 @@ button_press_cb (GtkWidget *treeview,
                  GdkEventButton *event,
                  EvSidebarLinks *sidebar)
 {
-	GtkMenu *menu;
+	EvSidebarLinksPrivate *priv = sidebar->priv;
 	GtkTreePath *path = NULL;
-	GList *menus = gtk_menu_get_for_attach_widget (treeview);
-	if (menus && GTK_IS_MENU (menus->data)) {
-		menu = GTK_MENU (menus->data);
-	} else {
-		menu = build_popup_menu (sidebar);
-	}
 
-	if (event->button == 3) {
-	        if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (treeview),
-        	                                   event->x,
-                	                           event->y,
-	                                           &path,
-        	                                   NULL, NULL, NULL)) {
-			gtk_tree_view_set_cursor (GTK_TREE_VIEW (treeview),
-						  path, NULL, FALSE);
-			check_menu_sensitivity (GTK_TREE_VIEW (treeview), path, sidebar);
-			gtk_menu_popup_at_pointer (menu,
-						   (GdkEvent *) event);
-			gtk_tree_path_free (path);
+	if (!gdk_event_triggers_context_menu ((const GdkEvent *) event))
+		return GDK_EVENT_PROPAGATE;
 
-			return TRUE;
-		}
-	}
+	if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (treeview), event->x,
+					    event->y, &path, NULL, NULL, NULL))
+		return GDK_EVENT_PROPAGATE;
 
-	return FALSE;
+	if (! path_is_selected (GTK_TREE_VIEW (treeview), path))
+		path = NULL;
+
+	check_menu_sensitivity (GTK_TREE_VIEW (treeview), path, sidebar);
+	gtk_menu_popup_at_pointer (GTK_MENU (priv->popup),
+				   (GdkEvent *) event);
+	gtk_tree_path_free (path);
+
+	return GDK_EVENT_STOP;
 }
 
 /**
@@ -696,6 +677,8 @@ row_collapsed_cb (GtkTreeView *tree_view,
 			if (tmp) {
 				ev_metadata_set_string (metadata, "index-expand", tmp);
 				g_free (tmp);
+			} else {
+				ev_metadata_set_string (metadata, "index-expand", new_index);
 			}
 			g_free (new_index);
 		} else {
@@ -852,14 +835,16 @@ collapse_all_recursive (GtkTreeView  *tree_view,
 }
 
 static void
-collapse_all_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar_links)
+ev_links_popup_cmd_collapse_all (GSimpleAction *action,
+				 GVariant      *parameter,
+				 gpointer       user_data)
 {
-	EvSidebarLinksPrivate *priv;
+	EvSidebarLinks *sidebar_links = EV_SIDEBAR_LINKS (user_data);
+	EvSidebarLinksPrivate *priv = sidebar_links->priv;
 	GtkWidget *window;
 	EvMetadata *metadata;
 	GString *index_collapse = NULL;
 
-	priv = sidebar_links->priv;
 	window = gtk_widget_get_toplevel (GTK_WIDGET (sidebar_links));
 	if (EV_IS_WINDOW (window)) {
 		metadata = ev_window_get_metadata (EV_WINDOW (window));
@@ -935,14 +920,16 @@ expand_all_recursive (GtkTreeView  *tree_view,
 }
 
 static void
-expand_all_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar_links)
+ev_links_popup_cmd_expand_all (GSimpleAction *action,
+			       GVariant      *parameter,
+			       gpointer       user_data)
 {
-	EvSidebarLinksPrivate *priv;
+	EvSidebarLinks *sidebar_links = EV_SIDEBAR_LINKS (user_data);
+	EvSidebarLinksPrivate *priv = sidebar_links->priv;
 	GtkWidget *window;
 	EvMetadata *metadata;
 	GString *index_expand = NULL;
 
-	priv = sidebar_links->priv;
 	window = gtk_widget_get_toplevel (GTK_WIDGET (sidebar_links));
 	if (EV_IS_WINDOW (window)) {
 		metadata = ev_window_get_metadata (EV_WINDOW (window));
@@ -966,9 +953,12 @@ expand_all_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar_links)
 }
 
 static void
-expand_all_under_selected_item_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar_links)
+ev_links_popup_cmd_expand_element (GSimpleAction *action,
+				   GVariant      *parameter,
+				   gpointer       user_data)
 {
-	EvSidebarLinksPrivate *priv;
+	EvSidebarLinks *sidebar_links = EV_SIDEBAR_LINKS (user_data);
+	EvSidebarLinksPrivate *priv = sidebar_links->priv;
 	GtkWidget *window;
 	GtkTreeView *treeview;
 	EvMetadata *metadata;
@@ -979,7 +969,6 @@ expand_all_under_selected_item_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar_
 	GString *index_expand = NULL;
 	gchar *index_expand_chars;
 
-	priv = sidebar_links->priv;
 	treeview = GTK_TREE_VIEW (priv->tree_view);
 	selection = gtk_tree_view_get_selection (treeview);
 
@@ -1011,6 +1000,26 @@ expand_all_under_selected_item_cb (GtkWidget *menuitem, EvSidebarLinks *sidebar_
 	gtk_tree_path_free (path);
 }
 
+static GActionGroup *
+create_links_action_group (EvSidebarLinks *ev_sidebar_links) {
+	const GActionEntry popup_entries[] = {
+		{ "search-outline", ev_links_popup_cmd_search_outline },
+		{ "print-section", ev_links_popup_cmd_print_section },
+		{ "collapse-all", ev_links_popup_cmd_collapse_all },
+		{ "expand-all", ev_links_popup_cmd_expand_all },
+		{ "expand-element", ev_links_popup_cmd_expand_element },
+	};
+	GSimpleActionGroup *group;
+
+	group = g_simple_action_group_new ();
+	g_action_map_add_action_entries (G_ACTION_MAP (group),
+					 popup_entries,
+					 G_N_ELEMENTS (popup_entries),
+					 ev_sidebar_links);
+
+	return G_ACTION_GROUP (group);
+}
+
 static void
 ev_sidebar_links_construct (EvSidebarLinks *ev_sidebar_links)
 {
@@ -1020,6 +1029,7 @@ ev_sidebar_links_construct (EvSidebarLinks *ev_sidebar_links)
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
 	GtkTreeModel *loading_model;
+	GtkBuilder *builder;
 
 	priv = ev_sidebar_links->priv;
 
@@ -1029,11 +1039,12 @@ ev_sidebar_links_construct (EvSidebarLinks *ev_sidebar_links)
 	loading_model = create_loading_model ();
 	priv->tree_view = gtk_tree_view_new_with_model (loading_model);
 	g_object_unref (loading_model);
-	
+
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (priv->tree_view));
 	gtk_tree_selection_set_mode (selection, GTK_SELECTION_NONE);
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (priv->tree_view), FALSE);
 	gtk_tree_view_set_tooltip_column (GTK_TREE_VIEW (priv->tree_view), 0);
+	gtk_tree_view_set_enable_search (GTK_TREE_VIEW (priv->tree_view), FALSE);
 	gtk_container_add (GTK_CONTAINER (swindow), priv->tree_view);
 
 	gtk_box_pack_start (GTK_BOX (ev_sidebar_links), swindow, TRUE, TRUE, 0);
@@ -1058,7 +1069,7 @@ ev_sidebar_links_construct (EvSidebarLinks *ev_sidebar_links)
 	renderer = gtk_cell_renderer_text_new ();
 	g_object_set (G_OBJECT (renderer),
 		      "ellipsize", PANGO_ELLIPSIZE_MIDDLE,
-		      "width-chars", 6,
+		      "width-chars", 7,
 		      "style", PANGO_STYLE_ITALIC,
 		      "xalign", 1.0,
 		      NULL);
@@ -1083,6 +1094,15 @@ ev_sidebar_links_construct (EvSidebarLinks *ev_sidebar_links)
 			  "row-expanded",
 			  G_CALLBACK (row_expanded_cb),
 			  ev_sidebar_links);
+
+	builder = gtk_builder_new_from_resource ("/org/gnome/evince/gtk/menus.ui");
+	priv->popup_model = g_object_ref (G_MENU_MODEL (gtk_builder_get_object (builder, "links-popup")));
+	g_object_unref (builder);
+	priv->popup = gtk_menu_new_from_model (priv->popup_model);
+	gtk_menu_attach_to_widget (GTK_MENU (priv->popup), priv->tree_view, NULL);
+	gtk_widget_insert_action_group (priv->popup,
+					"links",
+					create_links_action_group (ev_sidebar_links));
 }
 
 static void
@@ -1184,7 +1204,7 @@ update_page_callback (EvSidebarLinks *sidebar_links,
 	ev_sidebar_links_set_current_page (sidebar_links, new_page);
 }
 
-static void 
+static void
 row_activated_callback (GtkTreeView       *treeview,
 			GtkTreePath       *arg1,
 			GtkTreeViewColumn *arg2,
@@ -1320,9 +1340,8 @@ job_finished_callback (EvJobLinks     *job,
 	ev_sidebar_links_set_links_model (sidebar_links, job->model);
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW (priv->tree_view), job->model);
-	
-	g_object_unref (job);
-	priv->job = NULL;
+
+	g_clear_object (&priv->job);
 
 	window = gtk_widget_get_toplevel (GTK_WIDGET (sidebar_links));
 	if (EV_IS_WINDOW (window)) {
@@ -1339,7 +1358,7 @@ job_finished_callback (EvJobLinks     *job,
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (priv->tree_view));
 	gtk_tree_selection_set_mode (selection, GTK_SELECTION_SINGLE);
-	
+
 	if (priv->selection_id <= 0) {
 		priv->selection_id =
 			g_signal_connect (selection, "changed",
@@ -1438,4 +1457,3 @@ ev_sidebar_links_page_iface_init (EvSidebarPageInterface *iface)
 	iface->set_model = ev_sidebar_links_set_model;
 	iface->get_label = ev_sidebar_links_get_label;
 }
-

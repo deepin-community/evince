@@ -11,19 +11,21 @@
 # Wolfgang Stöggl <c72578@yahoo.de>, 2011, 2014.
 # Gabor Karsay <gabor.karsay@gmx.at>, 2011.
 # Christian Kirbach <christian.kirbach@gmail.com>, 2011, 2013.
+# Tim Sabsch <tim@sabsch.com>, 2021-2023.
+# Jürgen Benvenuti <gastornis@posteo.org>, 2022-2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: evince manual\n"
-"POT-Creation-Date: 2021-03-06 13:04+0000\n"
-"PO-Revision-Date: 2021-03-07 10:23+0100\n"
-"Last-Translator: Tim Sabsch <tim@sabsch.com>\n"
+"POT-Creation-Date: 2024-03-14 16:09+0000\n"
+"PO-Revision-Date: 2024-03-20 16:15+0100\n"
+"Last-Translator: Jürgen Benvenuti <gastornis@posteo.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #. Put one translator per line, in the form NAME <EMAIL>, YEAR1, YEAR2
 msgctxt "_"
@@ -35,7 +37,8 @@ msgstr ""
 "Wolfgang Stöggl <c72578@yahoo.de>, 2011\n"
 "Gabor Karsay <gabor.karsay@gmx.at>, 2011\n"
 "Benjamin Steinwender <b@stbe.at>, 2015\n"
-"Tim Sabsch <tim@sabsch.com>, 2021"
+"Tim Sabsch <tim@sabsch.com>, 2021-2023\n"
+"Jürgen Benvenuti <gastornis@posteo.org>, 2022-2024"
 
 #. (itstool) path: info/desc
 #: C/synctex-beamer.page:7
@@ -103,10 +106,11 @@ msgstr ""
 #: C/synctex-beamer.page:23
 msgid ""
 "You can perform forward and backward search in a <em>Beamer-LaTeX</em> "
-"presentation in a similar fashion to <link xref=\"synctex-search"
-"\">searching</link> through other TeX files compiled with SyncTeX. However "
-"the search brings you to the corresponding frame (slide), not necessarily "
-"the associated line of text. This difference is outlined in detail below."
+"presentation in a similar fashion to <link xref=\"synctex-"
+"search\">searching</link> through other TeX files compiled with SyncTeX. "
+"However the search brings you to the corresponding frame (slide), not "
+"necessarily the associated line of text. This difference is outlined in "
+"detail below."
 msgstr ""
 "Sie können in einer <em>Beamer-LaTeX</em>-Präsentation auf eine ähnliche "
 "Weise vorwärts und rückwärts suchen, wie Sie in anderen mit SyncTeX "
@@ -121,7 +125,7 @@ msgid ""
 "Forward search: from Beamer-LaTeX source to PDF (<app>gedit</app> to the "
 "<app>document viewer</app>)"
 msgstr ""
-"Vorwärtssuche: Von einer Beamer-LaTeX-Quelle in ein PDF (von <app>Gedit</"
+"Vorwärtssuche: Von einer Beamer-LaTeX-Quelle in ein PDF (von <app>gedit</"
 "app> zum <app>Dokumentenbetrachter</app>)"
 
 #. (itstool) path: section/p
@@ -144,7 +148,7 @@ msgid ""
 "viewer</app> to <app>gedit</app>)"
 msgstr ""
 "Rückwärtssuche: Von PDF in eine Beamer-LaTeX-Quelle (vom "
-"<app>Dokumentenbetrachter</app> nach <app>Gedit</app>)"
+"<app>Dokumentenbetrachter</app> nach <app>gedit</app>)"
 
 #. (itstool) path: section/p
 #: C/synctex-beamer.page:36
@@ -154,7 +158,7 @@ msgid ""
 "that ends that particular frame is highlighted. This will usually be the "
 "line:"
 msgstr ""
-"Mit der <link xref=\"synctex-search#backward-search\">Rückwärtssuche</link>, "
+"Mit der <link xref=\"synctex-search#backward-search\">Rückwärtssuche</link> "
 "können Sie auf eine Textpassage in einer Folie klicken und die entsprechende "
 "Zeile im LaTeX-Code, die jene Folie abschließt, wird daraufhin "
 "hervorgehoben. Dies wird normalerweise folgende Zeile sein:"
@@ -191,7 +195,7 @@ msgstr ""
 "Sollten Sie versuchen, ein vom <app>Dokumentenbetrachter</app> nicht "
 "unterstütztes Dokumentenformat zu öffnen, wird die Fehlermeldung »Das "
 "Dokument kann nicht geöffnet werden« angezeigt. Klicken Sie dann auf "
-"<gui>Schließen</gui>, um zum Fenster des Dokumentenbetrachters "
+"<gui>Schließen</gui>, um zum Fenster vom <app>Dokumentenbetrachter</app> "
 "zurückzukehren."
 
 #. (itstool) path: info/title
@@ -232,8 +236,8 @@ msgid ""
 "Press the menu button in the top-right corner of the window and press the "
 "<gui style=\"button\">Print</gui> button."
 msgstr ""
-"Öffnen Sie das Menü oben rechts im Fenster und wählen Sie dann <gui style="
-"\"button\">Drucken</gui>."
+"Öffnen Sie das Menü oben rechts im Fenster und wählen Sie dann <gui "
+"style=\"button\">Drucken</gui>."
 
 #. (itstool) path: item/p
 #: C/duplex-7pages.page:32 C/duplex-7pages.page:67 C/duplex-4pages.page:31
@@ -295,7 +299,7 @@ msgid ""
 "Edge (Flip)</gui>."
 msgstr ""
 "Wählen Sie für <gui>Beidseitig</gui> unter <em>Layout</em> die Option "
-"<gui>Kurzer Rand (Umdrehen)</gui>"
+"<gui>Kurzer Rand (Umdrehen)</gui>."
 
 #. (itstool) path: item/p
 #: C/duplex-7pages.page:50 C/duplex-4pages.page:48 C/duplex-12pages.page:48
@@ -366,7 +370,7 @@ msgid ""
 "your PDF document to make it 8-pages. To do so, you can:"
 msgstr ""
 "Es ist einfacher, eine 8-seitige Broschüre zu drucken. Es ist vermutlich "
-"besser eine leere Seite zu Ihrem PDF-Dokument hinzuzufügen, um es 8-seitig "
+"besser, eine leere Seite zu Ihrem PDF-Dokument hinzuzufügen, um es 8-seitig "
 "zu machen. Dies können Sie so tun:"
 
 #. (itstool) path: item/p
@@ -382,7 +386,7 @@ msgid ""
 "placing the blank page at the end."
 msgstr ""
 "Führen Sie das leere PDF mit Ihrem PDF-Dokument mittels <app>PDF-Shuffler</"
-"app> zusammen, so dass die leeren Seiten ans Dokumentende gelegt werden."
+"app> zusammen, sodass die leeren Seiten ans Dokumentende gelegt werden."
 
 #. (itstool) path: item/p
 #: C/duplex-7pages.page:105 C/duplex-5pages.page:145 C/duplex-6pages.page:112
@@ -437,8 +441,8 @@ msgstr "Portable Document Format (.pdf)"
 #. (itstool) path: page/p
 #: C/convertSVG.page:32
 msgid ""
-"This works by opening the file in <app>Document Viewer</app> and \"printing"
-"\" the document as an SVG file."
+"This works by opening the file in <app>Document Viewer</app> and "
+"\"printing\" the document as an SVG file."
 msgstr ""
 "Dies funktioniert durch Öffnen der Datei im <app>Dokumentenbetrachter</app> "
 "und durch »Drucken« des Dokuments in eine SVG-Datei."
@@ -469,8 +473,7 @@ msgid ""
 "gui>. The SVG file will be saved in the folder you chose."
 msgstr ""
 "Wählen Sie einen Namen und Ordner zum Speichern der Datei und klicken Sie "
-"dann auf <gui>Drucken</gui>. Die SVG-Datei wird im gewählten Ordner "
-"gespeichert."
+"auf <gui>Drucken</gui>. Die SVG-Datei wird im gewählten Ordner gespeichert."
 
 #. (itstool) path: info/desc
 #: C/convertPostScript.page:7
@@ -503,8 +506,8 @@ msgstr "Tagged Image File Format (.tiff, .tif)"
 #. (itstool) path: page/p
 #: C/convertPostScript.page:36
 msgid ""
-"This works by opening the file in <app>Document Viewer</app> and \"printing"
-"\" the document as a PostScript file."
+"This works by opening the file in <app>Document Viewer</app> and "
+"\"printing\" the document as a PostScript file."
 msgstr ""
 "Dies funktioniert durch Öffnen der Datei im <app>Dokumentenbetrachter</app> "
 "und durch »Drucken« des Dokuments in eine PostScript-Datei."
@@ -588,8 +591,8 @@ msgid ""
 "<app>Evince</app> is a document viewer. See <link xref=\"formats\"/> for a "
 "list of file types you can view."
 msgstr ""
-"<app>Evince</app> ist ein Dokumentenbetrachter. Lesen Sie unter <link xref="
-"\"formats\"/>, welche Dateitypen Sie anschauen können."
+"<app>Evince</app> ist ein Dokumentenbetrachter. Lesen Sie unter <link "
+"xref=\"formats\"/>, welche Dateitypen Sie anschauen können."
 
 #. (itstool) path: info/desc
 #: C/duplex-12pages.page:8
@@ -652,7 +655,7 @@ msgid ""
 "placing the blank page at the end."
 msgstr ""
 "Die leeren Seiten mit Ihrem PDF-Dokument mittels <app>PDF-Shuffler</app> "
-"zusammenführen, so dass die leere Seite ans Dokumentende gelegt wird."
+"zusammenführen, sodass die leere Seite ans Dokumentende gelegt wird."
 
 #. (itstool) path: page/p
 #: C/singlesided-3-4pages.page:39 C/singlesided-17-20pages.page:39
@@ -798,7 +801,7 @@ msgid ""
 "The <app>Document Viewer</app> documentation is maintained by a volunteer "
 "community. You are welcome to participate."
 msgstr ""
-"Die Dokumentation des <app>Dokumentenbetrachters</app> wird von einer "
+"Die Dokumentation vom <app>Dokumentenbetrachter</app> wird von einer "
 "Gemeinschaft aus Freiwilligen betreut. Sie sind herzlich eingeladen, sich "
 "daran zu beteiligen."
 
@@ -806,23 +809,28 @@ msgstr ""
 #: C/documentation.page:23
 msgid ""
 "To contribute to the Documentation Project, feel free to get in touch with "
-"us using <link href=\"https://cbe003.chat.mibbit.com/?url=irc%3A%2F%2Firc."
-"gnome.org%2Fdocs\">irc</link>, or via our <link href=\"http://mail.gnome.org/"
-"mailman/listinfo/gnome-doc-list\">mailing list</link>."
+"us in <link href=\"https://matrix.to/#/#docs:gnome.org\">#docs:gnome.org</"
+"link> on <link xref=\"help:gnome-help/help-matrix\">Matrix</link> or <link "
+"href=\"https://web.libera.chat/#gnome-docs\">#gnome-docs</link> on irc."
+"libera.chat, or via <link href=\"https://discourse.gnome.org/tag/"
+"documentation\">GNOME Discourse</link>."
 msgstr ""
-"Falls Sie sich am Dokumentationsprojekt beteiligen wollen, nehmen Sie im "
-"<link href=\"https://cbe003.chat.mibbit.com/?url=irc%3A%2F%2Firc.gnome.org"
-"%2Fdocs\">IRC</link> oder über die <link href=\"http://mail.gnome.org/"
-"mailman/listinfo/gnome-doc-list\">Mailingliste</link> mit uns Kontakt auf."
+"Falls Sie sich am Dokumentationsprojekt beteiligen wollen, nehmen Sie in "
+"<link href=\"https://matrix.to/#/#docs:gnome.org\">#docs:gnome.org</link> "
+"auf <link xref=\"help:gnome-help/help-matrix\">Matrix</link> oder <link "
+"href=\"https://web.libera.chat/#gnome-docs\">#gnome-docs</link> auf irc."
+"libera.chat oder über <link href=\"https://discourse.gnome.org/tag/"
+"documentation\">GNOME Discourse</link> mit uns Kontakt auf."
 
 #. (itstool) path: page/p
-#: C/documentation.page:25
+#: C/documentation.page:30
 msgid ""
-"Our <link href=\"https://live.gnome.org/DocumentationProject/Contributing"
-"\">wiki</link> page contains useful information."
+"Our <link href=\"https://wiki.gnome.org/DocumentationProject/"
+"Contributing\">wiki</link> page contains useful information."
 msgstr ""
-"Unser <link href=\"https://live.gnome.org/DocumentationProject/Contributing"
-"\">Wiki</link> enthält eine Reihe nützlicher Informationen für Sie bereit."
+"Unser <link href=\"https://wiki.gnome.org/DocumentationProject/"
+"Contributing\">Wiki</link> enthält eine Reihe nützlicher Informationen für "
+"Sie bereit."
 
 #. (itstool) path: info/desc
 #: C/synctex-editors.page:7
@@ -848,9 +856,9 @@ msgid ""
 "viewer</app> to <app>gedit</app>) are both supported."
 msgstr ""
 "<link xref=\"synctex-search#forward-search\">Vorwärtssuche</link> (von "
-"<app>Gedit</app> zum <app>Dokumentenbetrachter</app>) und <link xref="
-"\"synctex-search#backward-search\">Rückwärtssuche</link> (vom "
-"<app>Dokumentenbetrachter</app> nach <app>Gedit</app>) werden beide "
+"<app>gedit</app> zum <app>Dokumentenbetrachter</app>) und <link "
+"xref=\"synctex-search#backward-search\">Rückwärtssuche</link> (vom "
+"<app>Dokumentenbetrachter</app> nach <app>gedit</app>) werden beide "
 "unterstützt."
 
 #. (itstool) path: section/title
@@ -866,7 +874,7 @@ msgid ""
 "latex together with the <app>document viewer</app> you need to follow the "
 "next steps:"
 msgstr ""
-"Das <app>Gedit</app>-Plugin enthält ein Python-Skript (<file>evince_dbus.py</"
+"Das <app>gedit</app>-Plugin enthält ein Python-Skript (<file>evince_dbus.py</"
 "file>), das verwendet werden kann, damit SyncteX mit Vim arbeiten kann. Um "
 "vim-latex zusammen mit dem <app>Dokumentenbetrachter</app> einzusetzen, "
 "gehen Sie wie folgt vor:"
@@ -963,29 +971,29 @@ msgstr ""
 #: C/opening.page:47
 msgid "If an empty <app>Document Viewer</app> window is already open you can:"
 msgstr ""
-"Falls ein leeres Fenster des <app>Dokumentenbetrachters</app> bereits "
-"geöffnet ist, so können Sie:"
+"Wenn ein leeres Fenster vom <app>Dokumentenbetrachter</app> bereits geöffnet "
+"ist, so können Sie:"
 
 #. (itstool) path: item/p
-#: C/opening.page:51 C/opening.page:66
+#: C/opening.page:51
 msgid ""
 "Drag a file into the window from <app>Files</app>. The new file will open in "
-"a new window."
+"the same window."
 msgstr ""
 "Von <app>Dateien</app> ein Dateisymbol in das Fenster ziehen. Die neue Datei "
-"wird in einem neuen Fenster geöffnet."
+"wird im gleichen Fenster geöffnet."
 
 #. (itstool) path: item/p
 #: C/opening.page:55
 msgid ""
 "Press the <gui>Open…</gui> button in the top-left corner of the window. In "
 "the <gui>Open Document</gui> dialog, choose the file which you wish to open, "
-"and click <gui>Open</gui>. The file will open in a new window."
+"and click <gui>Open</gui>. The file will open in the same window."
 msgstr ""
 "Klicken Sie auf den Knopf <gui>Öffnen …</gui> in der linken oberen Ecke des "
 "Fensters. Wählen Sie im Dialogfenster <gui>Dokument öffnen</gui> die zu "
 "öffnende Datei und klicken Sie auf <gui>Öffnen</gui>. Die Datei wird "
-"daraufhin in einem neuen Fenster geöffnet."
+"daraufhin im gleichen Fenster geöffnet."
 
 #. (itstool) path: page/p
 #: C/opening.page:62
@@ -993,8 +1001,17 @@ msgid ""
 "If a document is already opened in a <app>Document Viewer</app> window you "
 "can:"
 msgstr ""
-"Falls im Fenster des <app>Dokumentenbetrachters</app> bereits ein Dokument "
+"Wenn im Fenster vom <app>Dokumentenbetrachter</app> bereits ein Dokument "
 "geöffnet ist, so können Sie:"
+
+#. (itstool) path: item/p
+#: C/opening.page:66
+msgid ""
+"Drag a file into the window from <app>Files</app>. The new file will open in "
+"a new window."
+msgstr ""
+"Von <app>Dateien</app> ein Dateisymbol in das Fenster ziehen. Die neue Datei "
+"wird in einem neuen Fenster geöffnet."
 
 #. (itstool) path: item/p
 #: C/opening.page:70
@@ -1062,12 +1079,13 @@ msgstr "So prüfen Sie, ob Ihr Drucker ordnungsgemäß drucken kann:"
 #. (itstool) path: item/p
 #: C/noprint.page:44
 msgid ""
-"Open the <gui href=\"help:gnome-help/shell-introduction#activities"
-"\">Activities</gui> overview and start typing <gui>Settings</gui>."
+"Open the <gui href=\"help:gnome-help/shell-"
+"introduction#activities\">Activities</gui> overview and start typing "
+"<gui>Settings</gui>."
 msgstr ""
-"Öffnen Sie die <gui href=\"help:gnome-help/shell-introduction#activities"
-"\">Aktivitäten</gui>-Übersicht und beginnen Sie mit der Eingabe von "
-"<gui>Einstellungen</gui>."
+"Öffnen Sie die <gui href=\"help:gnome-help/shell-"
+"introduction#activities\">Aktivitäten</gui>-Übersicht und beginnen Sie mit "
+"der Eingabe von <gui>Einstellungen</gui>."
 
 #. (itstool) path: item/p
 #: C/noprint.page:48
@@ -1092,7 +1110,7 @@ msgstr "Klicken Sie auf den <_:media-1/>-Knopf neben dem Drucker."
 #. (itstool) path: item/p
 #: C/noprint.page:58
 msgid "Select <gui style=\"menuitem\">Printing Options</gui>."
-msgstr "Wählen Sie <gui style=\"menutitem\">Druckoptionen</gui>."
+msgstr "Wählen Sie <gui style=\"menuitem\">Druckoptionen</gui>."
 
 #. (itstool) path: item/p
 #: C/noprint.page:61
@@ -1108,7 +1126,7 @@ msgid ""
 "link>. You may also need to see your printer's manual to see what else you "
 "can do."
 msgstr ""
-"Falls dies fehl schlägt, finden Sie möglicherweise in der <link href=\"help:"
+"Wenn dies fehl schlägt, finden Sie möglicherweise in der <link href=\"help:"
 "gnome-help/printing\">Hilfe zum Drucken</link> weitere Informationen, oder "
 "lesen Sie bitte im Handbuch zu Ihrem Drucker, was Sie sonst noch tun können."
 
@@ -1152,12 +1170,13 @@ msgstr ""
 #. (itstool) path: item/p
 #: C/noprint.page:93
 msgid ""
-"Open the <gui href=\"help:gnome-help/shell-introduction#activities"
-"\">Activities</gui> overview and start typing <gui>dconf Editor</gui>."
+"Open the <gui href=\"help:gnome-help/shell-"
+"introduction#activities\">Activities</gui> overview and start typing "
+"<gui>dconf Editor</gui>."
 msgstr ""
-"Öffnen Sie die <gui href=\"help:gnome-help/shell-introduction#activities"
-"\">Aktivitäten</gui>-Übersicht und beginnen Sie mit der Eingabe von "
-"<gui>Dconf-Editor</gui>."
+"Öffnen Sie die <gui href=\"help:gnome-help/shell-"
+"introduction#activities\">Aktivitäten</gui>-Übersicht und beginnen Sie mit "
+"der Eingabe von <gui>Dconf-Editor</gui>."
 
 #. (itstool) path: item/p
 #: C/noprint.page:97
@@ -1214,7 +1233,7 @@ msgid ""
 "placing the blank pages at the end."
 msgstr ""
 "Die leeren Seiten mit Ihrem PDF-Dokument mittels <app>PDF-Shuffler</app> "
-"zusammenführen, so dass die leeren Seiten ans Dokumentende gelegt werden."
+"zusammenführen, sodass die leeren Seiten ans Dokumentende gelegt werden."
 
 #. (itstool) path: item/item
 #: C/singlesided-17-20pages.page:58
@@ -1392,19 +1411,24 @@ msgstr ""
 #. (itstool) path: page/p
 #: C/synctex-support.page:42
 msgid "In <app>gedit</app>, enable the SyncTeX Plugin:"
-msgstr "Aktivieren Sie in <app>Gedit</app> das SyncTeX-Plugin:"
+msgstr "Aktivieren Sie in <app>gedit</app> das SyncTeX-Plugin:"
 
 #. (itstool) path: item/p
 #: C/synctex-support.page:47
 msgid ""
-"Click <guiseq><gui>Edit</gui><gui>Preferences</gui><gui>Plugins</gui></"
-"guiseq> tab."
+"Press the menu button in the top-right corner of the window and select <gui "
+"style=\"menuitem\">Preferences</gui>."
 msgstr ""
-"Klicken Sie auf den Reiter unter <guiseq><gui>Bearbeiten</"
-"gui><gui>Einstellungen</gui><gui>Plugins</gui></guiseq>."
+"Klicken Sie auf den Menüknopf in der oberen rechten Ecke des Fensters und "
+"wählen Sie <gui style=\"menuitem\">Einstellungen</gui>."
 
 #. (itstool) path: item/p
-#: C/synctex-support.page:52
+#: C/synctex-support.page:50
+msgid "Select the <gui>Plugins</gui> tab."
+msgstr "Wählen Sie den Reiter <gui>Erweiterungen</gui>."
+
+#. (itstool) path: item/p
+#: C/synctex-support.page:55
 msgid "Check <gui>SyncTeX</gui>."
 msgstr "Wählen Sie <gui>SyncTeX</gui> aus."
 
@@ -1487,7 +1511,7 @@ msgid ""
 "document at least once, you will be shown how many times the search result "
 "appears on the current page."
 msgstr ""
-"Falls das Wort oder der Suchbegriff im gesamten Dokument nicht vorkommen, so "
+"Wenn das Wort oder der Suchbegriff im gesamten Dokument nicht vorkommen, so "
 "erscheint <_:media-1/> im Suchfeld. Wenn es jedoch mindestens einmal "
 "vorkommt, dann wird die Anzahl der Suchtreffer auf der aktuellen Seite "
 "angezeigt."
@@ -1539,55 +1563,56 @@ msgid ""
 "translated by a world-wide volunteer community. You are welcome to "
 "participate."
 msgstr ""
-"Die Benutzeroberfläche und die Dokumentation des <app>Dokumentenbetrachters</"
+"Die Benutzeroberfläche und die Dokumentation vom <app>Dokumentenbetrachter</"
 "app> werden von einer weltweiten Gemeinschaft aus Freiwilligen übersetzt. "
 "Sie sind herzlich eingeladen, sich daran zu beteiligen."
 
 #. (itstool) path: page/p
 #: C/translate.page:27
 msgid ""
-"There are <link href=\"http://l10n.gnome.org/module/evince/\">many "
+"There are <link href=\"https://l10n.gnome.org/module/evince/\">many "
 "languages</link> for which translations are still needed."
 msgstr ""
-"Übersetzungen sind noch für <link href=\"http://l10n.gnome.org/module/evince/"
-"\">zahlreiche Sprachen</link> nötig."
+"Übersetzungen sind noch für <link href=\"https://l10n.gnome.org/module/"
+"evince/\">zahlreiche Sprachen</link> nötig."
 
 #. (itstool) path: page/p
 #: C/translate.page:30
 msgid ""
-"To start translating you will need to <link href=\"http://l10n.gnome.org"
-"\">create an account</link> and join the <link href=\"http://l10n.gnome.org/"
-"teams/\">translation team</link> for your language. This will give you the "
-"ability to upload new translations."
+"To start translating you will need to <link href=\"https://l10n.gnome."
+"org\">create an account</link> and join the <link href=\"https://l10n.gnome."
+"org/teams/\">translation team</link> for your language. This will give you "
+"the ability to upload new translations."
 msgstr ""
-"Um mit der Übersetzung zu beginnen, müssen Sie zunächst <link href=\"http://"
-"l10n.gnome.org\">ein Konto anlegen</link> und einem <link href=\"http://l10n."
-"gnome.org/teams/\">Übersetzungsteam</link> für Ihre Sprache beitreten. So "
-"erhalten Sie die Möglichkeit, neue Übersetzungen hochzuladen."
+"Um mit der Übersetzung zu beginnen, müssen Sie zunächst <link href=\"https://"
+"l10n.gnome.org\">ein Konto anlegen</link> und einem <link href=\"https://"
+"l10n.gnome.org/teams/\">Übersetzungsteam</link> für Ihre Sprache beitreten. "
+"So erhalten Sie die Möglichkeit, neue Übersetzungen hochzuladen."
 
 #. (itstool) path: page/p
 #: C/translate.page:34
 msgid ""
-"You can chat with GNOME translators using <link href=\"https://cbe003.chat."
-"mibbit.com/?url=irc%3A%2F%2Firc.gnome.org%2Fi18n\">irc</link>. People on the "
-"channel are located worldwide, so you may not get an immediate response as a "
-"result of timezone differences."
+"You can chat with GNOME translators in <link href=\"https://matrix.to/#/"
+"#i18n:gnome.org\">#i18n:gnome.org</link> on <link xref=\"help:gnome-help/"
+"help-matrix\">Matrix</link> or <link href=\"https://web.libera.chat/#gnome-"
+"i18n\">#gnome-i18n</link> on irc.libera.chat. People on the channel are "
+"located worldwide, so you may not get an immediate response as a result of "
+"timezone differences."
 msgstr ""
 "Sie können mit GNOME-Übersetzern im <link href=\"https://cbe003.chat.mibbit."
 "com/?url=irc%3A%2F%2Firc.gnome.org%2Fi18n\">IRC</link> chatten. Die "
-"Teilnehmer in diesem Kanal sind über die ganze Welt verstreut, so dass Sie "
+"Teilnehmer in diesem Kanal sind über die ganze Welt verstreut, sodass Sie "
 "aufgrund der unterschiedlichen Zeitzonen nicht unbedingt sofort eine Antwort "
 "erhalten werden."
 
 #. (itstool) path: page/p
-#: C/translate.page:37
+#: C/translate.page:41
 msgid ""
-"Alternatively, you can contact the Internationalization Team using their "
-"<link href=\"http://mail.gnome.org/mailman/listinfo/gnome-i18n\">mailing "
-"list</link>."
+"Alternatively, you can contact the Internationalization Team using <link "
+"href=\"https://discourse.gnome.org/tag/i18n\">GNOME Discourse</link>."
 msgstr ""
-"Alternativ können Sie das Internationalisierungsteam über dessen <link href="
-"\"http://mail.gnome.org/mailman/listinfo/gnome-i18n\">Mailingliste</link> "
+"Alternativ können Sie das Internationalisierungsteam über <link "
+"href=\"https://discourse.gnome.org/tag/i18n\">GNOME Discourse</link> "
 "kontaktieren."
 
 #. (itstool) path: info/desc
@@ -1614,7 +1639,7 @@ msgid ""
 msgstr ""
 "Wenn ein Dokument zum ersten Mal geöffnet wird, werden Vorgabeeinstellungen "
 "wie Vergrößerung und Ansichtsoptionen angewendet. Jede Änderung, die Sie an "
-"diesen Einstellungen vornehmen, werden für das Dokument gespeichert."
+"diesen Einstellungen vornehmen, wird für das Dokument gespeichert."
 
 #. (itstool) path: page/p
 #: C/default-settings.page:26
@@ -1848,7 +1873,7 @@ msgid ""
 "placing the blank pages at the end."
 msgstr ""
 "Führen Sie das leere PDF mit Ihrem PDF-Dokument mittels <app>PDF-Shuffler</"
-"app> zusammen, so dass die leeren Seiten ans Dokumentende gelegt werden."
+"app> zusammen, sodass die leeren Seiten ans Dokumentende gelegt werden."
 
 #. (itstool) path: info/desc
 #: C/formats.page:10
@@ -1866,9 +1891,9 @@ msgid "The <app>document viewer</app> supports the following formats:"
 msgstr "Der <app>Dokumentenbetrachter</app> unterstützt die folgenden Formate:"
 
 #. (itstool) path: item/p
-#: C/formats.page:33 C/presentations.page:77
-msgid "Comic Book Archive (.cbr and .cbz)"
-msgstr "Comic-Book-Archiv (.cbr und .cbz)"
+#: C/formats.page:33
+msgid "Comic Book Archive (.cb7, .cbr, .cbt, and .cbz)"
+msgstr "Comic-Book-Archiv (.cb7, .cbr, .cbt und .cbz)"
 
 #. (itstool) path: item/p
 #: C/formats.page:34 C/printing.page:49 C/presentations.page:78
@@ -1963,8 +1988,8 @@ msgid ""
 "Follow the steps for printing a <link xref=\"duplex-16page\">16-page "
 "booklet</link>."
 msgstr ""
-"Befolgen Sie die Anweisungen zum Drucken einer <link xref=\"duplex-16page"
-"\">16-seitigen Broschüre</link>."
+"Befolgen Sie die Anweisungen zum Drucken einer <link "
+"xref=\"duplex-16page\">16-seitigen Broschüre</link>."
 
 #. (itstool) path: info/desc
 #: C/license.page:8
@@ -2099,7 +2124,7 @@ msgid ""
 "The <app>Document Viewer</app> is developed and maintained by a volunteer "
 "community. You are welcome to participate."
 msgstr ""
-"Der <app>Dokumentenbetrachters</app> wird von einer Gemeinschaft aus "
+"Der <app>Dokumentenbetrachter</app> wird von einer Gemeinschaft aus "
 "Freiwilligen entwickelt. Sie sind herzlich eingeladen, sich daran zu "
 "beteiligen."
 
@@ -2108,16 +2133,19 @@ msgstr ""
 msgid ""
 "If you would like to <link href=\"https://wiki.gnome.org/Apps/Evince\">help "
 "develop</link> the <app>Document Viewer</app>, you can get in touch with the "
-"developers using <link href=\"https://cbe005.chat.mibbit.com/?url=irc%3A%2F"
-"%2Firc.gnome.org%2Fevince\">irc</link>, or via our <link href=\"https://mail."
-"gnome.org/mailman/listinfo/evince-list\">mailing list</link>."
+"developers at <link href=\"https://matrix.to/#/#evince:gnome.org\">#evince:"
+"gnome.org</link> on <link xref=\"help:gnome-help/help-matrix\">Matrix</link> "
+"or <link href=\"https://web.libera.chat/#gnome-evince\">#gnome-evince</link> "
+"on irc.libera.chat, or via <link href=\"https://discourse.gnome.org/tag/"
+"evince\">GNOME Discourse</link>."
 msgstr ""
-"Falls Sie bei der Entwicklung des <app>Dokumentenbetrachters</app> <link "
+"Falls Sie bei der Entwicklung vom <app>Dokumentenbetrachter</app> <link "
 "href=\"https://wiki.gnome.org/Apps/Evince\">helfen wollen</link>, nehmen Sie "
-"im <link href=\"https://cbe005.chat.mibbit.com/?url=irc%3A%2F%2Firc.gnome.org"
-"%2Fevince\">irc</link> oder über die <link href=\"https://mail.gnome.org/"
-"mailman/listinfo/evince-list\">Mailingliste</link> Kontakt mit den "
-"Entwicklern auf."
+"in <link href=\"https://matrix.to/#/#evince:gnome.org\">#evince:gnome.org</"
+"link> auf <link xref=\"help:gnome-help/help-matrix\">Matrix</link> oder "
+"<link href=\"https://web.libera.chat/#gnome-evince\">#gnome-evince</link> "
+"auf irc.libera.chat oder über <link href=\"https://discourse.gnome.org/tag/"
+"evince\">GNOME Discourse</link> Kontakt mit den Entwicklern auf."
 
 #. (itstool) path: info/desc
 #: C/printing.page:9
@@ -2309,12 +2337,13 @@ msgstr "Ein Knopf zum Anzeigen oder Verbergen der Seitenleiste."
 #: C/headerbar.page:31
 msgid ""
 "A text field to <link xref=\"movingaround#between-pages\">go to a certain "
-"page</link> or to <link xref=\"finding\">search</link> in the <link xref="
-"\"movingaround#navigating\">index</link>."
+"page</link> or to <link xref=\"finding\">search</link> in the <link "
+"xref=\"movingaround#navigating\">index</link>."
 msgstr ""
-"Ein Textfeld, um zu einer <link xref=\"movingaround#between-pages"
-"\">bestimmten Seite zu gehen</link> oder zum <link xref=\"finding\">Suchen</"
-"link> im <link xref=\"movingaround#navigating\">Index</link>."
+"Ein Textfeld, um zu einer <link xref=\"movingaround#between-"
+"pages\">bestimmten Seite zu gehen</link> oder zum <link "
+"xref=\"finding\">Suchen</link> im <link "
+"xref=\"movingaround#navigating\">Index</link>."
 
 #. (itstool) path: item/p
 #: C/headerbar.page:36
@@ -2328,8 +2357,8 @@ msgid ""
 "A drop-down box to adjust the <link xref=\"movingaround#zoom\">zoom</link> "
 "level."
 msgstr ""
-"Ein Auswahlfeld zum Anpassen der <link xref=\"movingaround#zoom"
-"\">Vergrößerungsstufe</link>."
+"Ein Auswahlfeld zum Anpassen der <link "
+"xref=\"movingaround#zoom\">Vergrößerungsstufe</link>."
 
 #. (itstool) path: item/p
 #: C/headerbar.page:42
@@ -2358,11 +2387,11 @@ msgstr "Seitenskalierung beim Ausdrucken"
 #. (itstool) path: item/p
 #: C/print-pagescaling.page:30
 msgid ""
-"Open the menu at the top-right of the window, then select <gui style="
-"\"menuitem\">Print…</gui>."
+"Open the menu at the top-right of the window, then select <gui "
+"style=\"menuitem\">Print…</gui>."
 msgstr ""
-"Öffnen Sie das Menü oben rechts im Fenster und wählen Sie dann <gui style="
-"\"menuitem\">Drucken …</gui>."
+"Öffnen Sie das Menü oben rechts im Fenster und wählen Sie dann <gui "
+"style=\"menuitem\">Drucken …</gui>."
 
 #. (itstool) path: item/p
 #: C/print-pagescaling.page:34
@@ -2485,8 +2514,8 @@ msgid ""
 "Follow the steps for printing a <link xref=\"duplex-12page\">12-page "
 "booklet</link>."
 msgstr ""
-"Befolgen Sie die Anweisungen zum Drucken einer <link xref=\"duplex-12page"
-"\">12-seitigen Broschüre</link>."
+"Befolgen Sie die Anweisungen zum Drucken einer <link "
+"xref=\"duplex-12page\">12-seitigen Broschüre</link>."
 
 #. (itstool) path: info/title
 #: C/duplex-6pages.page:7
@@ -2579,8 +2608,8 @@ msgid ""
 "to your PDF document to make it 12-pages. To do so, you can:"
 msgstr ""
 "Es ist einfacher, eine 12-seitige Broschüre zu drucken. Es ist vermutlich "
-"besser 3 leere Seiten zu Ihrem PDF-Dokument hinzuzufügen, um es 12-seitig zu "
-"machen. Dies können Sie so tun:"
+"besser, 3 leere Seiten zu Ihrem PDF-Dokument hinzuzufügen, um es 12-seitig "
+"zu machen. Dies können Sie so tun:"
 
 #. (itstool) path: info/title
 #: C/singlesided-5-8pages.page:7
@@ -2759,14 +2788,14 @@ msgid ""
 "side pane</link>."
 msgstr ""
 "Sehen Sie sich eine Seite mit Anmerkungen an. Suchen Sie gegebenenfalls "
-"Seiten mit Anmerkungen in der <link xref=\"annotations-navigate"
-"\">Seitenleiste mit Anmerkungen</link>."
+"Seiten mit Anmerkungen in der <link xref=\"annotations-"
+"navigate\">Seitenleiste mit Anmerkungen</link>."
 
 #. (itstool) path: item/p
 #: C/annotations-delete.page:35
 msgid ""
-"Right-click on the annotation icon in the document, and click <gui style="
-"\"menuitem\">Remove Annotation</gui>."
+"Right-click on the annotation icon in the document, and click <gui "
+"style=\"menuitem\">Remove Annotation</gui>."
 msgstr ""
 "Klicken Sie mit der rechten Maustaste auf das Symbol für Anmerkungen im "
 "Dokument und dann auf <gui style=\"menuitem\">Anmerkung entfernen</gui>."
@@ -2814,7 +2843,6 @@ msgstr ""
 "Die ist eine Fehlerdatenbank, in der Benutzer und Entwickler Details zu "
 "Fehlern, Abstürzen und Erweiterungswünschen hinterlegen."
 
-# Die Bugzilla-Website ist nur in Englisch
 #. (itstool) path: page/p
 #: C/bug-filing.page:26
 msgid ""
@@ -2835,14 +2863,14 @@ msgstr ""
 msgid ""
 "Once you have an account, log in, and click on <gui>New issue</gui>. Before "
 "reporting a bug, please read the <link href=\"https://wiki.gnome.org/"
-"Community/GettingInTouch/Bugzilla/Guidelines\">bug writing guidelines</"
-"link>, and please <link href=\"https://gitlab.gnome.org/GNOME/evince/issues"
-"\">browse</link> for the bug to see if it already exists."
+"GettingInTouch/BugReportingGuidelines\">bug writing guidelines</link>, and "
+"please <link href=\"https://gitlab.gnome.org/GNOME/evince/issues\">browse</"
+"link> for the bug to see if it already exists."
 msgstr ""
 "Sobald die Erstellung des Kontos abgeschlossen ist, klicken Sie auf <gui>New "
-"issue</gui>. Bevor Sie einen Fehler melden, lesen Sie bitte die <link href="
-"\"https://wiki.gnome.org/Community/GettingInTouch/Bugzilla/Guidelines\">bug "
-"writing guidelines</link> und <link href=\"https://gitlab.gnome.org/GNOME/"
+"issue</gui>. Bevor Sie einen Fehler melden, lesen Sie bitte die <link "
+"href=\"https://wiki.gnome.org/GettingInTouch/BugReportingGuidelines\">Bug "
+"Reporting Guidelines</link> und <link href=\"https://gitlab.gnome.org/GNOME/"
 "evince/issues\">schauen Sie bitte nach</link>, ob der Fehler vielleicht "
 "schon gemeldet wurde."
 
@@ -2884,8 +2912,8 @@ msgid ""
 "help.gnome.org/users/gnome-help/stable/printing-select\">the GNOME Desktop "
 "Help</link>."
 msgstr ""
-"Bitte lesen Sie <link xref=\"help:gnome-help/printing-select\" href="
-"\"https://help.gnome.org/users/gnome-help/stable/printing-select\">den "
+"Bitte lesen Sie <link xref=\"help:gnome-help/printing-select\" "
+"href=\"https://help.gnome.org/users/gnome-help/stable/printing-select\">den "
 "entsprechenden Abschnitt im GNOME-Benutzerhandbuch</link>."
 
 #. (itstool) path: info/desc
@@ -2986,7 +3014,7 @@ msgstr "Zwischen Seiten blättern"
 msgid ""
 "You can move between pages of a document using one of the following methods:"
 msgstr ""
-"Sie können zwischen Seiten des Dokuments mit Hilfe einer der folgenden "
+"Sie können zwischen Seiten des Dokuments mithilfe einer der folgenden "
 "Möglichkeiten wechseln:"
 
 #. (itstool) path: item/p
@@ -3047,13 +3075,13 @@ msgstr ""
 msgid ""
 "You can only move around one page at a time, by default. If you want to move "
 "between pages just by scrolling or dragging, press the menu button in the "
-"top-right corner of the window and select <gui style=\"menuitem"
-"\">Continuous</gui>."
+"top-right corner of the window and select <gui "
+"style=\"menuitem\">Continuous</gui>."
 msgstr ""
 "Sie können standardmäßig nur jeweils eine Seite durchsuchen. Falls Sie sich "
 "durch die Seiten durch Rollen und Ziehen bewegen wollen, klicken Sie auf den "
-"Menüknopf in der rechten oberen Ecke des Fensters und wählen Sie <gui style="
-"\"menuitem\">Fortlaufend</gui>."
+"Menüknopf in der rechten oberen Ecke des Fensters und wählen Sie <gui "
+"style=\"menuitem\">Fortlaufend</gui>."
 
 #. (itstool) path: section/title
 #: C/movingaround.page:122
@@ -3065,9 +3093,9 @@ msgstr "Navigation mittels Seitenliste oder Inhaltsverzeichnis"
 #: C/movingaround.page:124 C/annotations.page:30 C/bookmarks.page:34
 msgid ""
 "When you open a file, you should have a side pane on the left side of the "
-"window. If you do not have a visible side pane, click the <gui style=\"button"
-"\">Side pane</gui> button in the top-left corner, or press the <key>F9</key> "
-"key on the keyboard."
+"window. If you do not have a visible side pane, click the <gui "
+"style=\"button\">Side pane</gui> button in the top-left corner, or press the "
+"<key>F9</key> key on the keyboard."
 msgstr ""
 "Wenn Sie eine Datei öffnen, sollte links im Fenster eine Seitenleiste "
 "eingeblendet werden. Wenn keine Seitenleiste zu sehen ist, klicken Sie auf "
@@ -3142,8 +3170,8 @@ msgid ""
 "Alternatively, hold down <key>Ctrl</key> and use your mouse scroll wheel to "
 "zoom."
 msgstr ""
-"Oder halten Sie die <key>Strg</key>-Taste gedrückt und vergrößern/"
-"verkleinern Sie die Ansicht mit Hilfe des Mausrads."
+"Oder halten Sie die <key>Strg</key>-Taste gedrückt und vergrößern oder "
+"verkleinern Sie die Ansicht mithilfe des Mausrads."
 
 #. (itstool) path: note/p
 #: C/movingaround.page:164
@@ -3167,8 +3195,8 @@ msgstr ""
 #: C/movingaround.page:168
 msgid ""
 "If you want to see two pages at once, side by side, like in a book, press "
-"the menu button in the top-right corner of the window and select <gui style="
-"\"menuitem\">Dual</gui>."
+"the menu button in the top-right corner of the window and select <gui "
+"style=\"menuitem\">Dual</gui>."
 msgstr ""
 "Um zwei Seiten zugleich nebeneinander zu sehen, so wie in einem Buch, "
 "klicken Sie auf den Menüknopf in der rechten oberen Ecke des Fensters und "
@@ -3180,7 +3208,7 @@ msgid ""
 "If the allow-links-change-zoom gsetting is set to false, links are blocked "
 "from changing your zoom level."
 msgstr ""
-"Falls die gsetting-Einstellung »allow-links-change-zoom« auf falsch gesetzt "
+"Wenn die gsetting-Einstellung »allow-links-change-zoom« auf falsch gesetzt "
 "ist, werden Verweise vom Ändern der Vergrößerungsstufe ausgeschlossen."
 
 #. (itstool) path: section/p
@@ -3269,8 +3297,8 @@ msgid ""
 "If the document is deleted while you are still viewing it, it will still "
 "remain open."
 msgstr ""
-"Falls das Dokument gelöscht wird, während Sie es anschauen, so wird es im "
-"<app>Dokumentenbetrachter</app> geöffnet bleiben."
+"Wenn das Dokument gelöscht wird, während Sie es anschauen, bleibt es "
+"geöffnet."
 
 #. (itstool) path: info/desc
 #: C/presentations.page:7
@@ -3387,6 +3415,11 @@ msgstr ""
 "Die folgenden Dateiformate können für eine Präsentationen verwendet werden:"
 
 #. (itstool) path: item/p
+#: C/presentations.page:77
+msgid "Comic Book Archive (.cbr and .cbz)"
+msgstr "Comic-Book-Archiv (.cbr und .cbz)"
+
+#. (itstool) path: item/p
 #: C/presentations.page:80
 msgid "Open Document Presentation (.odp)"
 msgstr "OpenDocument-Präsentation (.odp)"
@@ -3458,7 +3491,7 @@ msgid ""
 "color, style and icon of your note."
 msgstr ""
 "Sie können im Fenster <gui>Eigenschaften für Anmerkungen</gui> den "
-"Verfasser, Farbe, Stil und das Symbol Ihrer Anmerkung anpassen."
+"Verfasser, die Farbe, den Stil und das Symbol Ihrer Anmerkung anpassen."
 
 #. (itstool) path: note/p
 #: C/annotation-properties.page:38
@@ -3623,7 +3656,7 @@ msgid ""
 "the <app>Document Viewer</app> header bar."
 msgstr ""
 "Die Seitenbezeichnung sollte im gleichen Format sein wie die in der "
-"Titelleiste des <app>Dokumentenbetrachters</app> angezeigte Seitennummer."
+"Titelleiste vom <app>Dokumentenbetrachter</app> angezeigte Seitennummer."
 
 #. (itstool) path: section/title
 #: C/commandline.page:52
@@ -3690,9 +3723,9 @@ msgid ""
 "choose what to display in the side pane. (Some options may not be available "
 "for some documents)."
 msgstr ""
-"Unten in der Seitenleiste befinden sich die Knöpfe <gui>Gliederung</gui>, "
-"<gui>Anmerkungen</gui> und <gui>Lesezeichen</gui> (einige Optionen könnten "
-"nicht bei allen Dokumenten verfügbar sein)."
+"Unten in der Seitenleiste befinden sich die Knöpfe <gui>Vorschaubilder</"
+"gui>, <gui>Gliederung</gui>, <gui>Anmerkungen</gui> und <gui>Lesezeichen</"
+"gui> (einige Optionen könnten nicht bei allen Dokumenten verfügbar sein)."
 
 #. (itstool) path: page/p
 #: C/annotations.page:39
@@ -3711,8 +3744,8 @@ msgstr ""
 #. (itstool) path: item/p
 #: C/annotations.page:50
 msgid ""
-"You should now see <gui style=\"button\">Note text</gui> and <gui style="
-"\"button\">Highlight text</gui> buttons below the header bar."
+"You should now see <gui style=\"button\">Note text</gui> and <gui "
+"style=\"button\">Highlight text</gui> buttons below the header bar."
 msgstr ""
 "Sie sehen nun die Knöpfe <gui style=\"button\">Notiztext</gui> und <gui "
 "style=\"button\">Texthervorhebung</gui> unterhalb der Kopfleiste."
@@ -3820,6 +3853,12 @@ msgstr ""
 "seitigen Broschüre</link>."
 
 #. (itstool) path: info/title
+#: C/index.page:7
+msgctxt "link:trail"
+msgid "Evince Document Viewer"
+msgstr "Evince-Dokumentenbetrachter"
+
+#. (itstool) path: info/title
 #: C/index.page:8
 msgctxt "link"
 msgid "Evince Document Viewer"
@@ -3914,8 +3953,8 @@ msgid ""
 "You can add, rename and delete bookmarks using the <app>Document Viewer</"
 "app>."
 msgstr ""
-"Sie können mit Hilfe des <app>Dokumentenbetrachter</app>s Lesezeichen "
-"anlegen, umbenennen und entfernen."
+"Sie können mithilfe vom <app>Dokumentenbetrachter</app> Lesezeichen anlegen, "
+"umbenennen und entfernen."
 
 #. (itstool) path: page/p
 #: C/bookmarks.page:38
@@ -3923,8 +3962,8 @@ msgid ""
 "At the bottom of this side pane, select the <gui style=\"button\">Bookmarks</"
 "gui> button."
 msgstr ""
-"Klicken Sie unten in dieser Seitenleiste auf den Knopf <gui style=\"button"
-"\">Lesezeichen</gui>."
+"Klicken Sie unten in dieser Seitenleiste auf den Knopf <gui "
+"style=\"button\">Lesezeichen</gui>."
 
 #. (itstool) path: section/title
 #: C/bookmarks.page:44
@@ -3946,8 +3985,8 @@ msgid ""
 "In the side pane, select the <gui style=\"button\">Bookmarks</gui> button at "
 "the bottom."
 msgstr ""
-"Klicken Sie unten in der Seitenleiste auf den Knopf <gui style=\"button"
-"\">Lesezeichen</gui>."
+"Klicken Sie unten in der Seitenleiste auf den Knopf <gui "
+"style=\"button\">Lesezeichen</gui>."
 
 #. (itstool) path: item/p
 #: C/bookmarks.page:56
@@ -4058,8 +4097,8 @@ msgstr "Sie können Dokumente der folgenden Formate in PDF-Dateien umwandeln:"
 #. (itstool) path: page/p
 #: C/convertpdf.page:35
 msgid ""
-"This works by opening the file in <app>Document Viewer</app> and \"printing"
-"\" the document as a PDF file."
+"This works by opening the file in <app>Document Viewer</app> and "
+"\"printing\" the document as a PDF file."
 msgstr ""
 "Dies funktioniert durch Öffnen der Datei im <app>Dokumentenbetrachter</app> "
 "und durch »Drucken« des Dokuments in eine PDF-Datei."
@@ -4107,12 +4146,12 @@ msgstr "Farben in einer Seite umkehren"
 #: C/invert-colors.page:32
 msgid ""
 "To swap black for white, white for black, and so on, press the menu button "
-"in the top-right corner of the window and select <gui style=\"menuitem"
-"\">Night Mode</gui>."
+"in the top-right corner of the window and select <gui "
+"style=\"menuitem\">Night Mode</gui>."
 msgstr ""
 "Um schwarz und weiß zu vertauschen oder umgekehrt, klicken Sie auf den "
-"Menüknopf in der rechten oberen Ecke des Fensters und wählen Sie <gui style="
-"\"menuitem\">Nachtmodus</gui>."
+"Menüknopf in der rechten oberen Ecke des Fensters und wählen Sie <gui "
+"style=\"menuitem\">Nachtmodus</gui>."
 
 #. (itstool) path: note/p
 #: C/invert-colors.page:37
@@ -4174,7 +4213,7 @@ msgstr ""
 #: C/synctex-search.page:7
 msgid "Flip between the <app>document viewer</app> and <app>gedit</app>."
 msgstr ""
-"Wechseln Sie zwischen dem <app>Dokumentenbetrachter</app> und <app>Gedit</"
+"Wechseln Sie zwischen dem <app>Dokumentenbetrachter</app> und <app>gedit</"
 "app>."
 
 #. (itstool) path: page/title
@@ -4190,7 +4229,7 @@ msgid ""
 "backward search from an included file."
 msgstr ""
 "Nachdem Sie Ihre <link xref=\"synctex-compile\">TeX-Datei mit SyncTeX "
-"kompiliert haben</link>, können Sie nun suchen. SyncTeX unterstützt selbst "
+"kompiliert haben</link>, können Sie nun suchen. SyncTeX unterstützt sogar "
 "Vorwärts- und Rückwärtssuche in einer eingebundenen Datei."
 
 #. (itstool) path: section/title
@@ -4199,7 +4238,7 @@ msgid ""
 "Forward search: from TeX to PDF (from <app>gedit</app> to the <app>document "
 "viewer</app>)"
 msgstr ""
-"Vorwärtssuche: Von TeX nach PDF (von <app>Gedit</app> zum "
+"Vorwärtssuche: Von TeX nach PDF (von <app>gedit</app> zum "
 "<app>Dokumentenbetrachter</app>)"
 
 #. (itstool) path: section/p
@@ -4223,7 +4262,7 @@ msgid ""
 "In <app>gedit</app>, click <guiseq><gui>Tools</gui> <gui>Forward Search</"
 "gui></guiseq>. The corresponding line in the PDF will be outlined in red."
 msgstr ""
-"Klicken Sie in <app>Gedit</app> auf <guiseq><gui>Werkzeuge</"
+"Klicken Sie in <app>gedit</app> auf <guiseq><gui>Werkzeuge</"
 "gui><gui>Vorwärtssuche</gui></guiseq>. Die entsprechende Zeile im PDF-"
 "Dokument wird rot umrandet."
 
@@ -4279,7 +4318,7 @@ msgid ""
 "<app>gedit</app>)"
 msgstr ""
 "Rückwärtssuche: Von PDF nach TeX (vom <app>Dokumentenbetrachter</app> nach "
-"<app>Gedit</app>)"
+"<app>gedit</app>)"
 
 #. (itstool) path: section/p
 #: C/synctex-search.page:62
@@ -4300,6 +4339,13 @@ msgstr ""
 "Sie können eine Rückwärtssuche durch Ausführen von <keyseq><key>Strg</"
 "key><key>Linksklick</key></keyseq> im <app>Dokumentenbetrachter</app> "
 "starten. Die entsprechende Zeile wird im TeX-Quellcode hervorgehoben."
+
+#~ msgid ""
+#~ "Click <guiseq><gui>Edit</gui><gui>Preferences</gui><gui>Plugins</gui></"
+#~ "guiseq> tab."
+#~ msgstr ""
+#~ "Klicken Sie auf den Reiter unter <guiseq><gui>Bearbeiten</"
+#~ "gui><gui>Einstellungen</gui><gui>Plugins</gui></guiseq>."
 
 #~ msgid "Click <gui>Printers</gui> in the sidebar to open the panel."
 #~ msgstr ""
@@ -4737,8 +4783,9 @@ msgstr ""
 #~ "Seite</gui>."
 
 #~ msgid ""
-#~ "If you want to see the previously visited pages press <gui style=\"button"
-#~ "\">&lt;</gui> or <gui style=\"button\">&gt;</gui> on the header bar."
+#~ "If you want to see the previously visited pages press <gui "
+#~ "style=\"button\">&lt;</gui> or <gui style=\"button\">&gt;</gui> on the "
+#~ "header bar."
 #~ msgstr ""
 #~ "Um zuvor besuchte Seiten zu sehen, wählen Sie <gui style=\"button\">&lt;</"
 #~ "gui> oder <gui style=\"button\">&gt;</gui> in der Kopfleiste."

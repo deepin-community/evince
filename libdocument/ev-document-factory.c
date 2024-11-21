@@ -1,6 +1,6 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8; c-indent-level: 8 -*- */
 /*
- *  Copyright (C) 2005, Red Hat, Inc. 
+ *  Copyright (C) 2005, Red Hat, Inc.
+ *  Copyright © 2018 Christian Persch
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -181,7 +181,7 @@ get_compression_from_mime_type (const gchar *mime_type)
  * fast or slow MIME type detection. If a document could be created,
  * @compression is filled in with the document's compression type.
  * On error, %NULL is returned and @error filled in.
- * 
+ *
  * Returns: a new #EvDocument instance, or %NULL on error with @error filled in
  */
 static EvDocument *
@@ -206,7 +206,7 @@ new_document_for_uri (const char        *uri,
 	*compression = get_compression_from_mime_type (mime_type);
 
 	g_free (mime_type);
-	
+
         return document;
 }
 
@@ -233,6 +233,10 @@ _ev_document_factory_init (void)
 	if (ev_backends_list)
 		return TRUE;
 
+        if (g_getenv ("EV_BACKENDS_DIR") != NULL)
+                ev_backends_dir = g_strdup (g_getenv ("EV_BACKENDS_DIR"));
+
+	if (!ev_backends_dir) {
 #ifdef G_OS_WIN32
 {
         gchar *dir;
@@ -246,6 +250,7 @@ _ev_document_factory_init (void)
 #else
         ev_backends_dir = g_strdup (EV_BACKENDSDIR);
 #endif
+	}
 
         ev_backends_list = _ev_backend_info_load_from_dir (ev_backends_dir);
 
@@ -260,17 +265,10 @@ _ev_document_factory_init (void)
 void
 _ev_document_factory_shutdown (void)
 {
-	g_list_foreach (ev_backends_list, (GFunc) _ev_backend_info_unref, NULL);
-	g_list_free (ev_backends_list);
-	ev_backends_list = NULL;
+	g_list_free_full (g_steal_pointer (&ev_backends_list), (GDestroyNotify) _ev_backend_info_unref);
 
-	if (ev_module_hash != NULL) {
-		g_hash_table_unref (ev_module_hash);
-		ev_module_hash = NULL;
-	}
-
-	g_free (ev_backends_dir);
-        ev_backends_dir = NULL;
+	g_clear_pointer (&ev_module_hash, g_hash_table_unref);
+	g_clear_pointer (&ev_backends_dir, g_free);
 }
 
 /**
@@ -331,8 +329,7 @@ ev_document_factory_get_document_full (const char           *uri,
 			return document;
 		}
 
-		g_object_unref (document);
-		document = NULL;
+		g_clear_object (&document);
 	}
 
 	/* Try again with slow mime detection */
@@ -376,9 +373,7 @@ ev_document_factory_get_document_full (const char           *uri,
 			return document;
 		}
 
-		g_object_unref (document);
-		document = NULL;
-
+		g_clear_object (&document);
 		g_propagate_error (error, err);
 	}
 
@@ -540,6 +535,66 @@ ev_document_factory_get_document_for_stream (GInputStream *stream,
         return document;
 }
 
+/**
+ * ev_document_factory_get_document_for_fd:
+ * @fd: a file descriptor
+ * @mime_type: the mime type
+ * @flags: flags from #EvDocumentLoadFlags
+ * @cancellable: (allow-none): a #GCancellable, or %NULL
+ * @error: (allow-none): a #GError location to store an error, or %NULL
+ *
+ * Synchronously creates a #EvDocument for the document from @fd using the backend
+ * for loading documents of type @mime_type; or, if the backend does not support
+ * loading from file descriptors, or an error occurred on opening the document,
+ * returns %NULL and fills in @error.
+ * If the document is encrypted, it is returned but also @error is set to
+ * %EV_DOCUMENT_ERROR_ENCRYPTED.
+ *
+ * If the mime type cannot be inferred from the file descriptor, and @mime_type is %NULL,
+ * an error is returned.
+ *
+ * Note that this function takes ownership of @fd; you must not ever
+ * operate on it again. It will be closed automatically if the document
+ * is destroyed, or if this function returns %NULL.
+ *
+ * Returns: (transfer full): a new #EvDocument, or %NULL
+ *
+ * Since: 42.0
+ */
+EvDocument*
+ev_document_factory_get_document_for_fd (int fd,
+                                         const char *mime_type,
+                                         EvDocumentLoadFlags flags,
+                                         GCancellable *cancellable,
+                                         GError **error)
+{
+        EvDocument *document;
+
+        g_return_val_if_fail (fd != -1, NULL);
+        g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+        if (mime_type == NULL) {
+                g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                                     "Cannot query mime type from file descriptor");
+                close (fd);
+                return NULL;
+        }
+
+        document = ev_document_factory_new_document_for_mime_type (mime_type, error);
+        if (document == NULL) {
+                close (fd);
+                return NULL;
+        }
+
+        if (!ev_document_load_fd (document, fd, flags, cancellable, error)) {
+                /* fd is now consumed */
+                g_object_unref (document);
+                return NULL;
+        }
+
+        return document;
+}
+
 static void
 file_filter_add_mime_types (EvBackendInfo *info, GtkFileFilter *filter)
 {
@@ -560,9 +615,9 @@ file_filter_add_mime_types (EvBackendInfo *info, GtkFileFilter *filter)
  * @document: a #EvDocument, or %NULL
  *
  * Adds some file filters to @chooser.
- 
+
  * Always add a "All documents" format.
- * 
+ *
  * If @document is not %NULL, adds a #GtkFileFilter for @document's MIME type.
  *
  * If @document is %NULL, adds a #GtkFileFilter for each document type that evince
@@ -637,11 +692,23 @@ ev_backends_manager_get_document_module_name (EvDocument  *document)
         return info->module_name;
 }
 
+/**
+ * ev_backends_manager_get_document_type_info: (skip)
+ * @document: a #EvDocument
+ *
+ * Returns: a EvTypeInfo
+ */
 EvTypeInfo *ev_backends_manager_get_document_type_info (EvDocument  *document)
 {
         return (EvTypeInfo *) get_backend_info_for_document (document);
 }
 
+/**
+ * ev_backends_manager_get_all_types_info: (skip)
+ *
+ * Returns: @list: (element-type EvBackendInfo): a shallow copy of #GList
+ *    containing #EvBackendInfo objects
+ */
 GList *
 ev_backends_manager_get_all_types_info       (void)
 {

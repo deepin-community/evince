@@ -117,12 +117,11 @@ _ev_file_helpers_init (void)
 
 void
 _ev_file_helpers_shutdown (void)
-{	
-	if (tmp_dir != NULL)	
+{
+	if (tmp_dir != NULL)
 		g_rmdir (tmp_dir);
 
-	g_free (tmp_dir);
-	tmp_dir = NULL;
+	g_clear_pointer (&tmp_dir, g_free);
 }
 
 /**
@@ -265,11 +264,11 @@ ev_tmp_file_unlink (GFile *file)
 
 	if (!file)
 		return;
-	
+
 	res = g_file_delete (file, NULL, &error);
 	if (!res) {
 		char *uri;
-		
+
 		uri = g_file_get_uri (file);
 		g_warning ("Unable to delete temp file %s: %s\n", uri, error->message);
 		g_free (uri);
@@ -281,17 +280,17 @@ void
 ev_tmp_uri_unlink (const gchar *uri)
 {
 	GFile *file;
-	
+
 	if (!uri)
 		return;
-	
+
 	file = g_file_new_for_uri (uri);
 	if (!g_file_is_native (file)) {
 		g_warning ("Attempting to delete non native uri: %s\n", uri);
 		g_object_unref (file);
 		return;
 	}
-	
+
 	ev_tmp_file_unlink (file);
 	g_object_unref (file);
 }
@@ -333,7 +332,7 @@ ev_xfer_uri_simple (const char *from,
 	GFile *source_file;
 	GFile *target_file;
 	gboolean result;
-	
+
 	if (!from)
 		return TRUE;
 
@@ -341,7 +340,7 @@ ev_xfer_uri_simple (const char *from,
 
 	source_file = g_file_new_for_uri (from);
 	target_file = g_file_new_for_uri (to);
-	
+
 	result = g_file_copy (source_file, target_file,
 			      G_FILE_COPY_TARGET_DEFAULT_PERMS |
 			      G_FILE_COPY_OVERWRITE,
@@ -349,7 +348,7 @@ ev_xfer_uri_simple (const char *from,
 
 	g_object_unref (target_file);
 	g_object_unref (source_file);
-    
+
 	return result;
 }
 
@@ -434,7 +433,7 @@ get_mime_type_from_data (const gchar *uri, GError **error)
         gchar            *mime_type = NULL;
 
 	file = g_file_new_for_uri (uri);
-	
+
 	input_stream = g_file_read (file, NULL, error);
 	if (!input_stream) {
 		g_object_unref (file);
@@ -465,7 +464,7 @@ get_mime_type_from_data (const gchar *uri, GError **error)
                 return NULL;
         }
 
-#ifndef G_OS_WIN32
+#ifdef G_OS_WIN32
        /* On Windows, the implementation of g_content_type_guess() is
         * sometimes too limited, so we do use get_mime_type_from_uri()
         * as a fallback */
@@ -503,6 +502,80 @@ ev_file_get_mime_type (const gchar *uri,
 	return fast ? get_mime_type_from_uri (uri, error) : get_mime_type_from_data (uri, error);
 }
 
+/**
+ * ev_file_get_mime_type_from_fd:
+ * @fd: an file descriptor (must be seekable)
+ * @error: a #GError location to store an error, or %NULL
+ *
+ * Returns: a newly allocated string with the MIME type of the file referred to
+ *   by @fd, or %NULL on error or if the MIME type could not be determined
+ */
+gchar *
+ev_file_get_mime_type_from_fd (int      fd,
+                               GError **error)
+{
+        guchar buffer[4096];
+        ssize_t r;
+        off_t pos;
+        char *content_type, *mime_type;
+
+        g_return_val_if_fail (fd != -1, NULL);
+
+        pos = lseek (fd, 0, SEEK_CUR);
+        if (pos == (off_t)-1) {
+                int errsv = errno;
+                g_set_error (error, G_IO_ERROR,
+                             g_io_error_from_errno (errsv),
+                             "Failed to get MIME type: %s",
+                             g_strerror (errsv));
+                return NULL;
+        }
+
+        do {
+                r = read (fd, buffer, sizeof (buffer));
+        } while (r == -1 && errno == EINTR);
+
+        if (r == -1) {
+                int errsv = errno;
+                g_set_error (error, G_IO_ERROR,
+                             g_io_error_from_errno (errsv),
+                             "Failed to get MIME type: %s",
+                             g_strerror (errsv));
+
+                (void) lseek (fd, pos, SEEK_SET);
+                return NULL;
+        }
+
+        if (lseek (fd, pos, SEEK_SET) == (off_t)-1) {
+                int errsv = errno;
+                g_set_error (error, G_IO_ERROR,
+                             g_io_error_from_errno (errsv),
+                             "Failed to get MIME type: %s",
+                             g_strerror (errsv));
+                return NULL;
+        }
+
+        content_type = g_content_type_guess (NULL, /* no filename */
+                                             buffer, r,
+                                             NULL);
+        if (content_type == NULL) {
+                g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                                     _("Unknown MIME Type"));
+                return NULL;
+        }
+
+        mime_type = g_content_type_get_mime_type (content_type);
+        g_free (content_type);
+
+        if (mime_type == NULL) {
+                g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                                     _("Unknown MIME Type"));
+                return NULL;
+        }
+
+        return mime_type;
+}
+
 /* Compressed files support */
 
 static const char *compressor_cmds[] = {
@@ -536,7 +609,7 @@ compression_child_setup_cb (gpointer fd_ptr)
 static gchar *
 compression_run (const gchar       *uri,
 		 EvCompressionType  type,
-		 gboolean           compress, 
+		 gboolean           compress,
 		 GError           **error)
 {
 	gchar *argv[N_ARGS];
@@ -664,7 +737,7 @@ ev_file_uncompress (const gchar       *uri,
  * @error: a #GError location to store an error, or %NULL
  *
  * Compresses the file at @uri.
- 
+
  * If @type is %EV_COMPRESSION_NONE, it does nothing and returns %NULL.
  *
  * Otherwise, it returns the filename of a

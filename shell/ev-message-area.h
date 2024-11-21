@@ -19,8 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef EV_MESSAGE_AREA_H
-#define EV_MESSAGE_AREA_H
+#pragma once
 
 #include <gtk/gtk.h>
 
@@ -37,11 +36,11 @@ typedef struct _EvMessageArea        EvMessageArea;
 typedef struct _EvMessageAreaClass   EvMessageAreaClass;
 
 struct _EvMessageArea {
-	GtkInfoBar parent_instance;
+	GtkBin parent_instance;
 };
 
 struct _EvMessageAreaClass {
-	GtkInfoBarClass parent_class;
+	GtkBinClass parent_class;
 };
 
 GType      ev_message_area_get_type                 (void) G_GNUC_CONST;
@@ -62,7 +61,6 @@ void      _ev_message_area_add_buttons_valist       (EvMessageArea *area,
 						     const gchar   *first_button_text,
 						     va_list        args);
 GtkWidget *_ev_message_area_get_main_box            (EvMessageArea *area);
+GtkWidget *ev_message_area_get_info_bar             (EvMessageArea *area);
 
 G_END_DECLS
-
-#endif /* EV_MESSAGE_AREA_H */

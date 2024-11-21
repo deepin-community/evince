@@ -15,20 +15,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- *  $Id$
  */
+
+#pragma once
 
 #if !defined (__EV_EVINCE_DOCUMENT_H_INSIDE__) && !defined (EVINCE_COMPILATION)
 #error "Only <evince-document.h> can be included directly."
 #endif
 
-#ifndef EV_DOCUMENT_FIND_H
-#define EV_DOCUMENT_FIND_H
-
 #include <glib-object.h>
 #include <glib.h>
 
+#include "ev-macros.h"
 #include "ev-document.h"
 
 G_BEGIN_DECLS
@@ -42,6 +40,29 @@ G_BEGIN_DECLS
 
 typedef struct _EvDocumentFind	        EvDocumentFind;
 typedef struct _EvDocumentFindInterface EvDocumentFindInterface;
+typedef struct _EvFindRectangle         EvFindRectangle;
+
+#define EV_TYPE_FIND_RECTANGLE (ev_find_rectangle_get_type ())
+struct _EvFindRectangle
+{
+	gdouble x1;
+	gdouble y1;
+	gdouble x2;
+	gdouble y2;
+	gboolean next_line; /* the boolean from poppler_rectangle_find_get_match_continued() */
+	gboolean after_hyphen; /* the boolean from poppler_rectangle_find_get_ignored_hyphen() */
+	void (*_ev_reserved1) (void);
+	void (*_ev_reserved2) (void);
+};
+
+EV_PUBLIC
+GType            ev_find_rectangle_get_type (void) G_GNUC_CONST;
+EV_PUBLIC
+EvFindRectangle *ev_find_rectangle_new      (void);
+EV_PUBLIC
+EvFindRectangle *ev_find_rectangle_copy     (EvFindRectangle *ev_find_rect);
+EV_PUBLIC
+void             ev_find_rectangle_free     (EvFindRectangle *ev_find_rect);
 
 typedef enum {
 	EV_FIND_DEFAULT          = 0,
@@ -63,19 +84,33 @@ struct _EvDocumentFindInterface
 						  const gchar    *text,
 						  EvFindOptions   options);
 	EvFindOptions (*get_supported_options)   (EvDocumentFind *document_find);
+	GList        *(* find_text_extended)     (EvDocumentFind *document_find,
+						  EvPage         *page,
+						  const gchar    *text,
+						  EvFindOptions   options);
 };
 
+EV_PUBLIC
 GType         ev_document_find_get_type               (void) G_GNUC_CONST;
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+EV_DEPRECATED_FOR(ev_document_find_find_text_extended)
+EV_PUBLIC
 GList        *ev_document_find_find_text              (EvDocumentFind *document_find,
 						       EvPage         *page,
 						       const gchar    *text,
 						       gboolean        case_sensitive);
+G_GNUC_END_IGNORE_DEPRECATIONS
+EV_PUBLIC
 GList        *ev_document_find_find_text_with_options (EvDocumentFind *document_find,
 						       EvPage         *page,
 						       const gchar    *text,
 						       EvFindOptions   options);
+EV_PUBLIC
 EvFindOptions ev_document_find_get_supported_options  (EvDocumentFind *document_find);
+EV_PUBLIC
+GList        *ev_document_find_find_text_extended     (EvDocumentFind *document_find,
+						       EvPage         *page,
+						       const gchar    *text,
+						       EvFindOptions   options);
 
 G_END_DECLS
-
-#endif /* EV_DOCUMENT_FIND_H */

@@ -18,12 +18,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#pragma once
+
 #if !defined (EVINCE_COMPILATION)
 #error "This is a private header."
 #endif
-
-#ifndef __EV_VIEW_PRIVATE_H__
-#define __EV_VIEW_PRIVATE_H__
 
 #include "ev-view.h"
 #include "ev-document-model.h"
@@ -55,7 +54,7 @@ typedef struct {
 	gboolean autoscrolling;
 	guint last_y;
 	guint start_y;
-	guint timeout_id;	
+	guint timeout_id;
 } AutoScrollInfo;
 
 /* Information for handling selection */
@@ -151,9 +150,11 @@ struct _EvView {
 
 	/* Find */
 	EvJobFind *find_job;
-	GList **find_pages; /* Backwards compatibility */
-	gint find_page;
-	gint find_result;
+	GList **find_pages; /* Backwards compatibility. Contains EvFindRectangles's elements per page */
+	gint find_page;     /* Page of active find result */
+	gint find_result;   /* Index of active find result on find_pages[find_page]. For matches across
+	                     * two lines (which comprise two EvFindRectangle's), this will always point
+	                     * to the first one, i.e. the one where rect->next_line is TRUE */
 	gboolean jump_to_find_result;
 	gboolean highlight_find_results;
 
@@ -177,7 +178,7 @@ struct _EvView {
 	guint vscroll_policy : 1;
 
 	gint scroll_x;
-	gint scroll_y;	
+	gint scroll_y;
 
 	guint update_cursor_idle_id;
 
@@ -188,7 +189,7 @@ struct _EvView {
 	EvPoint       pending_point;
 
 	/* Current geometry */
-    
+
 	gint start_page;
 	gint end_page;
 	gint current_page;
@@ -217,7 +218,7 @@ struct _EvView {
 
 	/* Information for middle clicking and dragging around. */
 	DragInfo drag_info;
-	
+
 	/* Autoscrolling */
 	AutoScrollInfo scroll_info;
 
@@ -294,6 +295,7 @@ struct _EvViewClass {
 				       EvSourceLink   *link);
         void     (*annot_added)       (EvView         *view,
 				       EvAnnotation   *annot);
+        void     (*annot_cancel_add)  (EvView         *view);
         void     (*annot_changed)     (EvView         *view,
 				       EvAnnotation   *annot);
         void     (*annot_removed)     (EvView         *view,
@@ -355,6 +357,3 @@ void _ev_view_focus_form_field    (EvView      *view,
 
 void _ev_view_ensure_rectangle_is_visible (EvView       *view,
 					   GdkRectangle *rect);
-
-#endif  /* __EV_VIEW_PRIVATE_H__ */
-

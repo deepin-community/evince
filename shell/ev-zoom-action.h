@@ -18,8 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef EV_ZOOM_ACTION_H
-#define EV_ZOOM_ACTION_H
+#pragma once
 
 #include <gtk/gtk.h>
 #include <evince-document.h>
@@ -45,12 +44,8 @@ struct _EvZoomActionClass {
         GtkBoxClass parent_class;
 };
 
-GType      ev_zoom_action_get_type        (void);
-
-GtkWidget *ev_zoom_action_new             (EvDocumentModel *model,
-                                           GMenu           *menu);
-gboolean   ev_zoom_action_get_popup_shown (EvZoomAction    *action);
+GType ev_zoom_action_get_type  (void);
+void  ev_zoom_action_set_model (EvZoomAction *zoom_action,
+				 EvDocumentModel *model);
 
 G_END_DECLS
-
-#endif

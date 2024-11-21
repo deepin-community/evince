@@ -51,7 +51,8 @@ struct _ComicsDocument
 	EvArchive     *archive;
 	gchar         *archive_path;
 	gchar         *archive_uri;
-	GPtrArray     *page_names;
+	GPtrArray     *page_names; /* elem: char * */
+	GHashTable    *page_positions; /* key: char *, value: uint + 1 */
 };
 
 EV_BACKEND_REGISTER (ComicsDocument, comics_document)
@@ -143,17 +144,43 @@ is_apple_double (const char *name)
 	return ret;
 }
 
+static gboolean
+archive_reopen_if_needed (ComicsDocument  *comics_document,
+			  const char      *page_wanted,
+			  GError         **error)
+{
+	const char *current_page;
+	guint current_page_idx, page_wanted_idx;
+
+	if (ev_archive_at_entry (comics_document->archive)) {
+		current_page = ev_archive_get_entry_pathname (comics_document->archive);
+		if (current_page) {
+			current_page_idx = GPOINTER_TO_UINT (g_hash_table_lookup (comics_document->page_positions, current_page));
+			page_wanted_idx = GPOINTER_TO_UINT (g_hash_table_lookup (comics_document->page_positions, page_wanted));
+
+			if (current_page_idx != 0 &&
+			    page_wanted_idx != 0 &&
+			    page_wanted_idx > current_page_idx)
+				return TRUE;
+		}
+
+		ev_archive_reset (comics_document->archive);
+	}
+
+	return ev_archive_open_filename (comics_document->archive, comics_document->archive_path, error);
+}
+
 static GPtrArray *
 comics_document_list (ComicsDocument  *comics_document,
 		      GError         **error)
 {
 	GPtrArray *array = NULL;
-	gboolean has_encrypted_files, has_unsupported_images;
+	gboolean has_encrypted_files, has_unsupported_images, has_archive_errors;
 	GHashTable *supported_extensions = NULL;
 
 	if (!ev_archive_open_filename (comics_document->archive, comics_document->archive_path, error)) {
 		if (*error != NULL) {
-			g_debug ("Fatal error handling archive: %s", (*error)->message);
+			g_warning ("Fatal error handling archive (%s): %s", G_STRFUNC, (*error)->message);
 			g_clear_error (error);
 		}
 
@@ -168,6 +195,7 @@ comics_document_list (ComicsDocument  *comics_document,
 
 	has_encrypted_files = FALSE;
 	has_unsupported_images = FALSE;
+	has_archive_errors = FALSE;
 	array = g_ptr_array_sized_new (64);
 
 	while (1) {
@@ -176,15 +204,9 @@ comics_document_list (ComicsDocument  *comics_document,
 
 		if (!ev_archive_read_next_header (comics_document->archive, error)) {
 			if (*error != NULL) {
-				g_debug ("Fatal error handling archive: %s", (*error)->message);
+				g_debug ("Fatal error handling archive (%s): %s", G_STRFUNC, (*error)->message);
 				g_clear_error (error);
-
-				g_ptr_array_free (array, TRUE);
-
-				g_set_error_literal (error,
-						     EV_DOCUMENT_ERROR,
-						     EV_DOCUMENT_ERROR_INVALID,
-						     _("File is corrupted"));
+				has_archive_errors = TRUE;
 				goto out;
 			}
 			break;
@@ -217,6 +239,7 @@ comics_document_list (ComicsDocument  *comics_document,
 		g_ptr_array_add (array, g_strdup (name));
 	}
 
+out:
 	if (array->len == 0) {
 		g_ptr_array_free (array, TRUE);
 		array = NULL;
@@ -231,6 +254,11 @@ comics_document_list (ComicsDocument  *comics_document,
 					     EV_DOCUMENT_ERROR,
 					     EV_DOCUMENT_ERROR_UNSUPPORTED_CONTENT,
 					     _("No supported images in archive"));
+		} else if (has_archive_errors) {
+			g_set_error_literal (error,
+					     EV_DOCUMENT_ERROR,
+					     EV_DOCUMENT_ERROR_INVALID,
+					     _("File is corrupted"));
 		} else {
 			g_set_error_literal (error,
 					     EV_DOCUMENT_ERROR,
@@ -239,11 +267,22 @@ comics_document_list (ComicsDocument  *comics_document,
 		}
 	}
 
-out:
 	if (supported_extensions)
 		g_hash_table_destroy (supported_extensions);
 	ev_archive_reset (comics_document->archive);
 	return array;
+}
+
+static GHashTable *
+save_positions (GPtrArray *page_names)
+{
+	guint i;
+	GHashTable *ht;
+
+	ht = g_hash_table_new (g_str_hash, g_str_equal);
+	for (i = 0; i < page_names->len; i++)
+		g_hash_table_insert (ht, page_names->pdata[i], GUINT_TO_POINTER(i + 1));
+	return ht;
 }
 
 /* This function chooses the archive decompression support
@@ -341,6 +380,9 @@ comics_document_load (EvDocument *document,
 	if (!comics_document->page_names)
 		return FALSE;
 
+	/* Keep an index */
+	comics_document->page_positions = save_positions (comics_document->page_names);
+
         /* Now sort the pages */
         g_ptr_array_sort (comics_document->page_names, sort_page_names);
 
@@ -397,10 +439,12 @@ comics_document_get_page_size (EvDocument *document,
 	PixbufInfo info;
 	GError *error = NULL;
 
-	if (!ev_archive_open_filename (comics_document->archive, comics_document->archive_path, &error)) {
+	page_path = g_ptr_array_index (comics_document->page_names, page->index);
+
+	if (!archive_reopen_if_needed (comics_document, page_path, &error)) {
 		g_warning ("Fatal error opening archive: %s", error->message);
 		g_error_free (error);
-		goto out;
+		return;
 	}
 
 	loader = gdk_pixbuf_loader_new ();
@@ -409,15 +453,13 @@ comics_document_get_page_size (EvDocument *document,
 			  G_CALLBACK (get_page_size_prepared_cb),
 			  &info);
 
-	page_path = g_ptr_array_index (comics_document->page_names, page->index);
-
 	while (1) {
 		const char *name;
 		GError *error = NULL;
 
 		if (!ev_archive_read_next_header (comics_document->archive, &error)) {
 			if (error != NULL) {
-				g_warning ("Fatal error handling archive: %s", error->message);
+				g_warning ("Fatal error handling archive (%s): %s", G_STRFUNC, error->message);
 				g_error_free (error);
 			}
 			break;
@@ -458,9 +500,6 @@ comics_document_get_page_size (EvDocument *document,
 		if (height)
 			*height = info.height;
 	}
-
-out:
-	ev_archive_reset (comics_document->archive);
 }
 
 static void
@@ -486,10 +525,12 @@ comics_document_render_pixbuf (EvDocument      *document,
 	const char *page_path;
 	GError *error = NULL;
 
-	if (!ev_archive_open_filename (comics_document->archive, comics_document->archive_path, &error)) {
+	page_path = g_ptr_array_index (comics_document->page_names, rc->page->index);
+
+	if (!archive_reopen_if_needed (comics_document, page_path, &error)) {
 		g_warning ("Fatal error opening archive: %s", error->message);
 		g_error_free (error);
-		goto out;
+		return NULL;
 	}
 
 	loader = gdk_pixbuf_loader_new ();
@@ -497,14 +538,12 @@ comics_document_render_pixbuf (EvDocument      *document,
 			  G_CALLBACK (render_pixbuf_size_prepared_cb),
 			  rc);
 
-	page_path = g_ptr_array_index (comics_document->page_names, rc->page->index);
-
 	while (1) {
 		const char *name;
 
 		if (!ev_archive_read_next_header (comics_document->archive, &error)) {
 			if (error != NULL) {
-				g_warning ("Fatal error handling archive: %s", error->message);
+				g_warning ("Fatal error handling archive (%s): %s", G_STRFUNC, error->message);
 				g_error_free (error);
 			}
 			break;
@@ -544,8 +583,6 @@ comics_document_render_pixbuf (EvDocument      *document,
 	}
 	g_object_unref (loader);
 
-out:
-	ev_archive_reset (comics_document->archive);
 	return rotated_pixbuf;
 }
 
@@ -557,6 +594,8 @@ comics_document_render (EvDocument      *document,
 	cairo_surface_t *surface;
 
 	pixbuf = comics_document_render_pixbuf (document, rc);
+	if (!pixbuf)
+		return NULL;
 	surface = ev_document_misc_surface_from_pixbuf (pixbuf);
 	g_clear_object (&pixbuf);
 
@@ -573,6 +612,7 @@ comics_document_finalize (GObject *object)
                 g_ptr_array_free (comics_document->page_names, TRUE);
 	}
 
+	g_clear_pointer (&comics_document->page_positions, g_hash_table_destroy);
 	g_clear_object (&comics_document->archive);
 	g_free (comics_document->archive_path);
 	g_free (comics_document->archive_uri);

@@ -22,10 +22,12 @@ backend/xps/evince-xpsdocument.metainfo.xml.in.in
 backend/xps/xpsdocument.evince-backend.desktop.in.in
 data/org.gnome.Evince.desktop.in.in
 data/org.gnome.Evince.gschema.xml
+data/org.gnome.Evince.metainfo.xml.in
 data/org.gnome.Evince-previewer.desktop.in.in
 libdocument/ev-attachment.c
 libdocument/ev-document-factory.c
 libdocument/ev-file-helpers.c
+libdocument/ev-xmp.c
 libmisc/ev-page-action-widget.c
 libmisc/ev-search-box.c
 libview/ev-jobs.c
@@ -33,7 +35,6 @@ libview/ev-print-operation.c
 libview/ev-view-accessible.c
 libview/ev-view.c
 libview/ev-view-presentation.c
-org.gnome.Evince.appdata.xml.in
 previewer/ev-previewer.c
 previewer/ev-previewer-toolbar.c
 previewer/ev-previewer-window.c
@@ -45,6 +46,11 @@ shell/ev-annotations-toolbar.c
 shell/ev-application.c
 shell/ev-history.c
 shell/evince-menus.ui
+shell/evince-password-view.ui
+shell/evince-properties-fonts.ui
+shell/evince-sidebar-bookmarks.ui
+shell/evince-toolbar.ui
+shell/evince-zoom-action.ui
 shell/ev-keyring.c
 shell/ev-loading-message.c
 shell/ev-password-view.c
